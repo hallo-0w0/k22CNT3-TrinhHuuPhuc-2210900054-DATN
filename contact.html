@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên Hệ - CleanOffice Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">CleanOffice Pro</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Trang Chủ</a></li>
+                <li><a href="about.html">Giới Thiệu</a></li>
+                <li><a href="services.html">Dịch Vụ</a></li>
+                <li><a href="pricing.html">Bảng Giá</a></li>
+                <li><a href="contact.html">Liên Hệ</a></li>
+                <li><a href="login.html" class="btn-login">Đăng Nhập</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" style="padding: 3rem 2rem;">
+        <div class="hero-content">
+            <h1>Liên Hệ Với Chúng Tôi</h1>
+            <p>Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section>
+        <div class="container">
+            <h2 class="section-title">Hãy Để Lại Thông Tin</h2>
+            <p class="section-subtitle">Điền form bên dưới và chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất</p>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Thông Tin Liên Hệ</h3>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div>
+                            <h4>Hotline</h4>
+                            <p>0336350933</p>
+                            <p style="font-size: 0.9rem; color: var(--text-light);">Từ 7:00 - 22:00 hàng ngày</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div>
+                            <h4>Email</h4>
+                            <p>phuc@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">📍</div>
+                        <div>
+                            <h4>Địa Chỉ Văn Phòng</h4>
+                            <p>123 Đường ABC, Phường XYZ</p>
+                            <p>Quận Hà Đông, Hà Nội</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">🕒</div>
+                        <div>
+                            <h4>Giờ Làm Việc</h4>
+                            <p>Thứ 2 - Thứ 6: 7:00 - 18:00</p>
+                            <p>Thứ 7: 7:00 - 12:00</p>
+                            <p>Chủ Nhật: Nghỉ</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div>
+                            <h4>Mạng Xã Hội</h4>
+                            <p>Facebook: </p>
+                            <p>Zalo: 0336350944</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Họ và Tên *</label>
+                            <input type="text" id="name" name="name" required placeholder="Nhập họ và tên của bạn">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Số Điện Thoại *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="Nhập số điện thoại">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="Nhập địa chỉ email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="company">Tên Công Ty</label>
+                            <input type="text" id="company" name="company" placeholder="Nhập tên công ty (nếu có)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="service">Dịch Vụ Quan Tâm</label>
+                            <select id="service" name="service">
+                                <option value="">Chọn dịch vụ</option>
+                                <option value="daily">Vệ Sinh Hàng Ngày</option>
+                                <option value="periodic">Vệ Sinh Định Kỳ</option>
+                                <option value="construction">Vệ Sinh Sau Xây Dựng</option>
+                                <option value="window">Vệ Sinh Cửa Kính</option>
+                                <option value="carpet">Vệ Sinh Thảm</option>
+                                <option value="other">Dịch Vụ Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="area">Diện Tích Văn Phòng (m²)</label>
+                            <input type="number" id="area" name="area" placeholder="Nhập diện tích văn phòng">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Tin Nhắn *</label>
+                            <textarea id="message" name="message" required placeholder="Nhập tin nhắn của bạn..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Gửi Tin Nhắn</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section style="background-color: var(--bg-light); padding: 2rem 0;">
+        <div class="container">
+            <h2 class="section-title">Tìm Đường Đến Chúng Tôi</h2>
+            <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); height: 400px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; box-shadow: var(--shadow);">
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📍</div>
+                    <p><strong>123 Đường ABC, Phường XYZ, Quận 1, Hà Nội</strong></p>
+                    <p style="margin-top: 1rem; opacity: 0.9;">Bản đồ sẽ được tích hợp tại đây</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section>
+        <div class="container">
+            <h2 class="section-title">Câu Hỏi Thường Gặp</h2>
+            <div class="about-content">
+                <div class="about-section">
+                    <h3>Làm thế nào để đăng ký dịch vụ?</h3>
+                    <p>Bạn có thể đăng ký dịch vụ bằng cách điền form liên hệ trên trang này, gọi điện đến hotline 1900 1234, hoặc gửi email đến info@cleanofficepro.vn. Chúng tôi sẽ liên hệ lại trong vòng 24 giờ.</p>
+                </div>
+                <div class="about-section">
+                    <h3>Thời gian phản hồi là bao lâu?</h3>
+                    <p>Chúng tôi cam kết phản hồi mọi yêu cầu trong vòng 24 giờ làm việc. Đối với các yêu cầu khẩn cấp, chúng tôi sẽ phản hồi trong vòng 2 giờ.</p>
+                </div>
+                <div class="about-section">
+                    <h3>Có được tư vấn miễn phí không?</h3>
+                    <p>Có, chúng tôi cung cấp dịch vụ tư vấn miễn phí cho tất cả khách hàng. Nhân viên của chúng tôi sẽ đến tận nơi để khảo sát và tư vấn giải pháp phù hợp nhất.</p>
+                </div>
+                <div class="about-section">
+                    <h3>Làm thế nào để thanh toán?</h3>
+                    <p>Chúng tôi chấp nhận thanh toán bằng nhiều hình thức: tiền mặt, chuyển khoản ngân hàng, thẻ tín dụng, hoặc thanh toán theo tháng/quý/năm tùy theo thỏa thuận.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Về Chúng Tôi</h3>
+                <p>CleanOffice Pro - Dịch vụ vệ sinh văn phòng chuyên nghiệp hàng đầu, cam kết mang đến không gian làm việc sạch sẽ và chuyên nghiệp nhất.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên Kết Nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang Chủ</a></li>
+                    <li><a href="about.html">Giới Thiệu</a></li>
+                    <li><a href="services.html">Dịch Vụ</a></li>
+                    <li><a href="pricing.html">Bảng Giá</a></li>
+                    <li><a href="contact.html">Liên Hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Dịch Vụ</h3>
+                <ul>
+                    <li><a href="services.html">Vệ Sinh Hàng Ngày</a></li>
+                    <li><a href="services.html">Vệ Sinh Định Kỳ</a></li>
+                    <li><a href="services.html">Vệ Sinh Sau Xây Dựng</a></li>
+                    <li><a href="services.html">Vệ Sinh Chuyên Sâu</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên Hệ</h3>
+                <ul>
+                    <li>📞 Hotline: 0336350933</li>
+                    <li>📧 Email: phuc@cleanofficepro.vn</li>
+                    <li>📍 Địa chỉ: 123 Đường ABC, Quận XYZ, Hà Nội</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; CleanOffice Pro. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+

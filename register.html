@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký - CleanOffice Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">CleanOffice Pro</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Trang Chủ</a></li>
+                <li><a href="about.html">Giới Thiệu</a></li>
+                <li><a href="services.html">Dịch Vụ</a></li>
+                <li><a href="pricing.html">Bảng Giá</a></li>
+                <li><a href="contact.html">Liên Hệ</a></li>
+                <li><a href="login.html" class="btn-login">Đăng Nhập</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Register Section -->
+    <section style="padding: 4rem 0; background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(33, 150, 243, 0.1) 100%);">
+        <div class="container">
+            <div class="form-container">
+                <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 0.5rem; font-size: 2rem;">Đăng Ký Tài Khoản</h2>
+                <p style="text-align: center; color: var(--text-light); margin-bottom: 2rem;">Tạo tài khoản để trải nghiệm dịch vụ tốt nhất</p>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="fullName">Họ và Tên *</label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="Nhập họ và tên đầy đủ">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Số Điện Thoại *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="Nhập số điện thoại">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required placeholder="Nhập địa chỉ email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company">Tên Công Ty</label>
+                        <input type="text" id="company" name="company" placeholder="Nhập tên công ty (nếu có)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Địa Chỉ</label>
+                        <input type="text" id="address" name="address" placeholder="Nhập địa chỉ văn phòng">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mật Khẩu *</label>
+                        <input type="password" id="password" name="password" required placeholder="Tối thiểu 6 ký tự">
+                        <small style="color: var(--text-light); font-size: 0.9rem;">Mật khẩu phải có ít nhất 6 ký tự</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Xác Nhận Mật Khẩu *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Nhập lại mật khẩu">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: start; cursor: pointer;">
+                            <input type="checkbox" name="agree" required style="width: auto; margin-right: 0.5rem; margin-top: 0.3rem;">
+                            <span>Tôi đồng ý với <a href="#" style="color: var(--secondary-color);">Điều khoản sử dụng</a> và <a href="#" style="color: var(--secondary-color);">Chính sách bảo mật</a> *</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: start; cursor: pointer;">
+                            <input type="checkbox" name="newsletter" style="width: auto; margin-right: 0.5rem; margin-top: 0.3rem;">
+                            <span>Nhận thông tin khuyến mãi và cập nhật qua email</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Đăng Ký</button>
+                </form>
+
+                <div class="form-links">
+                    <p>Đã có tài khoản? <a href="login.html">Đăng nhập ngay</a></p>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ddd;">
+                    <p style="text-align: center; color: var(--text-light); margin-bottom: 1rem;">Hoặc đăng ký bằng</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button style="flex: 1; padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#ddd'; this.style.transform='translateY(0)'">
+                            <span style="font-size: 1.2rem;">📱</span> Google
+                        </button>
+                        <button style="flex: 1; padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#ddd'; this.style.transform='translateY(0)'">
+                            <span style="font-size: 1.2rem;">📘</span> Facebook
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section style="background-color: var(--bg-light);">
+        <div class="container">
+            <h2 class="section-title">Lợi Ích Khi Đăng Ký</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎁</div>
+                    <h3>Ưu Đãi Đăng Ký</h3>
+                    <p>Nhận ngay ưu đãi 10% cho lần đăng ký dịch vụ đầu tiên</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Quản Lý Dễ Dàng</h3>
+                    <p>Theo dõi và quản lý dịch vụ của bạn một cách thuận tiện</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3>Thanh Toán Nhanh</h3>
+                    <p>Thanh toán hóa đơn online nhanh chóng và an toàn</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Tích Điểm Thưởng</h3>
+                    <p>Tích điểm cho mỗi dịch vụ và đổi lấy ưu đãi hấp dẫn</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Thông Báo Sớm</h3>
+                    <p>Nhận thông báo về lịch vệ sinh và các ưu đãi đặc biệt</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📞</div>
+                    <h3>Hỗ Trợ Ưu Tiên</h3>
+                    <p>Được ưu tiên hỗ trợ và phục vụ từ đội ngũ chăm sóc khách hàng</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Về Chúng Tôi</h3>
+                <p>CleanOffice Pro - Dịch vụ vệ sinh văn phòng chuyên nghiệp hàng đầu, cam kết mang đến không gian làm việc sạch sẽ và chuyên nghiệp nhất.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên Kết Nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang Chủ</a></li>
+                    <li><a href="about.html">Giới Thiệu</a></li>
+                    <li><a href="services.html">Dịch Vụ</a></li>
+                    <li><a href="pricing.html">Bảng Giá</a></li>
+                    <li><a href="contact.html">Liên Hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Dịch Vụ</h3>
+                <ul>
+                    <li><a href="services.html">Vệ Sinh Hàng Ngày</a></li>
+                    <li><a href="services.html">Vệ Sinh Định Kỳ</a></li>
+                    <li><a href="services.html">Vệ Sinh Sau Xây Dựng</a></li>
+                    <li><a href="services.html">Vệ Sinh Chuyên Sâu</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên Hệ</h3>
+                <ul>
+                    <li>📞 Hotline: 0336350933</li>
+                    <li>📧 Email: phuc@cleanofficepro.vn</li>
+                    <li>📍 Địa chỉ: 123 Đường ABC, Quận XYZ, Hà Nội</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy;CleanOffice Pro. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+
