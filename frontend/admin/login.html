@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Admin - Office Cleaning Service</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card login-card border-0">
+                    <div class="card-header login-header text-white text-center py-4">
+                        <i class="bi bi-shield-lock-fill fs-1 d-block mb-2"></i>
+                        <h3 class="mb-0">Đăng nhập Admin</h3>
+                        <p class="mb-0 mt-2 opacity-75">Website Dịch vụ Vệ sinh Văn phòng</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="bi bi-person-fill me-2"></i>Tên đăng nhập
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="username" 
+                                       placeholder="Nhập username hoặc email" required autofocus>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock-fill me-2"></i>Mật khẩu
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg" id="password" 
+                                           placeholder="Nhập mật khẩu" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">
+                                    Ghi nhớ đăng nhập
+                                </label>
+                            </div>
+                            
+                            <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <span id="errorMessage"></span>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="loginBtn">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>
+                                <span id="loginBtnText">Đăng nhập</span>
+                                <span class="spinner-border spinner-border-sm d-none" id="loginSpinner"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3 text-white">
+                    <small>&copy; 2024 Office Cleaning Service. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Config -->
+    <script src="../../config.js"></script>
+    <!-- Login Script -->
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('bi-eye');
+                eyeIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('bi-eye-slash');
+                eyeIcon.classList.add('bi-eye');
+            }
+        });
+        
+        // Check if already logged in
+        if (checkAuth()) {
+            window.location.href = '/admin/index.html';
+        }
+        
+        // Handle login form
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            
+            // Hide error
+            errorAlert.classList.add('d-none');
+            
+            // Disable button and show spinner
+            loginBtn.disabled = true;
+            loginBtnText.classList.add('d-none');
+            loginSpinner.classList.remove('d-none');
+            
+            try {
+                const response = await API.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, {
+                    username: username,
+                    password: password
+                });
+                
+                // Check if user is admin
+                if (response.user.role_name !== 'ADMIN') {
+                    throw new Error('Bạn không có quyền truy cập trang quản trị');
+                }
+                
+                // Store tokens and user
+                API.setToken(response.access_token);
+                if (response.refresh_token) {
+                    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh_token);
+                }
+                API.setUser(response.user);
+                
+                // Redirect to dashboard
+                window.location.href = '/admin/index.html';
+                
+            } catch (error) {
+                // Show error
+                errorMessage.textContent = error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+                errorAlert.classList.remove('d-none');
+                
+                // Re-enable button
+                loginBtn.disabled = false;
+                loginBtnText.classList.remove('d-none');
+                loginSpinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>
