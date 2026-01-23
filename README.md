@@ -144,9 +144,4 @@ Sau khi chạy `seed_admin.py`:
 - Kiểm tra `CORS_ORIGINS` trong `.env`
 - Đảm bảo frontend và backend đang chạy trên đúng port
 
-## 📝 Ghi Chú
 
-- Xem chi tiết trong `readme_pclear.md`
-- Hướng dẫn nhanh: `QUICKSTART.md`
-- Backend sử dụng JWT authentication
-- Frontend sẽ được tạo ở bước tiếp theo

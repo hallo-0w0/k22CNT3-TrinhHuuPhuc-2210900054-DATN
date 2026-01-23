@@ -1,0 +1,28 @@
+/* Custom Utilities for About Page */
+.hover-shadow:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+
+.transition-all {
+  transition: all 0.3s ease-in-out !important;
+}
+
+/* Accordion Customization */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--pclear-text); /* Keep text dark for readability, or use primary */
+    color: #16a34a; /* Using accent color for active state text */
+    box-shadow: none;
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(34, 197, 94, 0.5);
+}
+.accordion-item {
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+}
+.accordion-item:last-child {
+    border-bottom: none;
+}

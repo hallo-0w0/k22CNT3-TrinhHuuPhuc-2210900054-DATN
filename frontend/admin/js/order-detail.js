@@ -139,11 +139,11 @@ function displayOrderDetail() {
     document.getElementById('serviceInfo').innerHTML = serviceInfo;
 
     // Status Card
-    const status = currentOrder.status;
+    const orderStatus = currentOrder.status;
     const statusCard = `
         <div class="text-center mb-3">
-            <span class="badge bg-${getStatusBadgeColor(status.status_code)} fs-6 p-3">
-                ${status.status_name}
+            <span class="badge bg-${getStatusBadgeColor(orderStatus.status_code)} fs-6 p-3">
+                ${orderStatus.status_name}
             </span>
         </div>
         <div class="d-grid gap-2">
@@ -177,16 +177,140 @@ function displayOrderDetail() {
     document.getElementById('paymentSummary').innerHTML = paymentSummary;
 
     // Staff Assignment
-    // TODO: Load staff assignment from order
-    const staffAssignment = `
-        <div id="staffInfo">
-            <p class="text-muted">Chưa phân công nhân viên</p>
-            <button class="btn btn-sm btn-primary" onclick="assignStaff()">
-                Phân công nhân viên
+    const assignments = currentOrder.assignments || [];
+    // Active assignments only
+    const activeAssignments = assignments.filter(a => a.is_active);
+
+    let staffHtml = '';
+    const status = currentOrder.status.status_code;
+
+    if (status === 'PENDING') {
+        staffHtml = `<p class="text-muted text-center my-3"><em>Đơn hàng cần được xác nhận trước khi phân công.</em></p>`;
+    } else if (status === 'CONFIRMED') {
+        // Giai đoạn 2: 1 Nhân viên chính
+        const mainStaff = activeAssignments[0]; // Should only be one
+        if (mainStaff && mainStaff.staff) {
+            staffHtml = `
+                <div class="border rounded p-2 mb-2 bg-light">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="badge bg-primary mb-1">Nhân viên chính</span>
+                            <h6 class="mb-0 fw-bold">${mainStaff.staff.full_name}</h6>
+                            <small class="text-muted">${mainStaff.staff.email}</small>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary w-100" onclick="assignStaff()">
+                    Thay đổi nhân viên chính
+                </button>
+            `;
+        } else {
+            staffHtml = `
+                <p class="text-muted small text-center my-3">Chưa có nhân viên chính</p>
+                <button class="btn btn-sm btn-primary w-100" onclick="assignStaff()">
+                    Phân công nhân viên chính
+                </button>
+            `;
+        }
+    } else if (status === 'IN_PROGRESS') {
+        // Giai đoạn 3: Danh sách nhân viên đang tham gia
+        staffHtml = '<h6 class="text-muted small mb-2">Đội ngũ thực hiện:</h6>';
+
+        if (activeAssignments.length > 0) {
+            staffHtml += '<div class="list-group list-group-flush mb-3">';
+            activeAssignments.forEach(a => {
+                staffHtml += `
+                    <div class="list-group-item px-0 py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold small">${a.staff.full_name}</h6>
+                                <small class="text-muted" style="font-size: 0.75rem">${a.notes || 'Thành viên'}</small>
+                            </div>
+                            <span class="badge bg-success rounded-pill" style="font-size: 0.6rem">Active</span>
+                        </div>
+                    </div>
+                `;
+            });
+            staffHtml += '</div>';
+        } else {
+            staffHtml += '<p class="text-muted small text-center">Chưa có nhân viên nào.</p>';
+        }
+
+        staffHtml += `
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="assignStaff()">
+                + Thêm nhân viên hỗ trợ
             </button>
-        </div>
-    `;
-    document.getElementById('staffAssignment').innerHTML = staffAssignment;
+        `;
+    } else {
+        // COMPLETED / CANCELLED: Read only
+        if (activeAssignments.length > 0) {
+            staffHtml += '<ul class="list-group list-group-flush">';
+            activeAssignments.forEach(a => {
+                staffHtml += `
+                    <li class="list-group-item px-0">
+                        <strong>${a.staff.full_name}</strong>
+                        <br><small class="text-muted">${a.notes || ''}</small>
+                    </li>
+                `;
+            });
+            staffHtml += '</ul>';
+        } else {
+            staffHtml = '<p class="text-muted small">Không có dữ liệu phân công.</p>';
+        }
+    }
+
+    document.getElementById('staffAssignment').innerHTML = staffHtml;
+
+    // Handle Cancellation Alerts
+    const mainCol = document.querySelector('.col-lg-8');
+    const existingAlert = mainCol.querySelector('.alert-cancellation-info');
+    if (existingAlert) existingAlert.remove();
+
+    const history = currentOrder.status_history || [];
+    const cancelRequest = history.find(h => h.change_reason && h.change_reason.startsWith('YÊU CẦU HỦY:'));
+    const isCancelled = currentOrder.status.status_code === 'CANCELLED';
+    const cancelReason = isCancelled
+        ? (history.sort((a, b) => b.history_id - a.history_id).find(h => h.new_status_id === currentOrder.status_id)?.change_reason)
+        : null;
+
+    let warningHtml = '';
+    if (cancelRequest && currentOrder.status.status_code === 'CONFIRMED') {
+        warningHtml = `
+            <div class="alert alert-warning border-warning d-flex align-items-start gap-3 mb-4 alert-cancellation-info shadow-sm">
+                <span class="fs-4">⚠️</span>
+                <div class="w-100">
+                    <h5 class="alert-heading fw-bold mb-2">Khách hàng yêu cầu hủy đơn!</h5>
+                    <div class="bg-white bg-opacity-50 p-3 rounded mb-3">
+                         <strong class="text-dark">Lý do:</strong> <span class="text-dark">${cancelRequest.change_reason.replace('YÊU CẦU HỦY: ', '')}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger" onclick="quickUpdateStatus('CANCELLED', 'Chấp nhận yêu cầu hủy: ${cancelRequest.change_reason.replace('YÊU CẦU HỦY: ', '')}')">
+                            ✓ Chấp nhận hủy
+                        </button>
+                        <a href="tel:${currentOrder.customer.phone_number}" class="btn btn-outline-dark">
+                            📞 Liên hệ khách
+                        </a>
+                    </div>
+                </div>
+            </div>
+         `;
+    } else if (isCancelled) {
+        warningHtml = `
+            <div class="alert alert-danger d-flex align-items-center gap-3 mb-4 alert-cancellation-info">
+                <span class="fs-4">✕</span>
+                <div>
+                    <h6 class="fw-bold mb-1">Đơn hàng đã bị hủy</h6>
+                    <span class="small">Lý do: ${cancelReason || 'Không có lý do cụ thể'}</span>
+                </div>
+            </div>
+         `;
+    }
+
+    if (warningHtml) {
+        const div = document.createElement('div');
+        div.innerHTML = warningHtml;
+        mainCol.prepend(div.firstElementChild);
+    }
 
     // Order Actions
     const actions = getOrderActionButtons();
@@ -198,15 +322,13 @@ function getOrderActionButtons() {
     let buttons = '';
 
     if (status === 'PENDING') {
-        buttons += `<button class="btn btn-success me-2" onclick="quickUpdateStatus('CONFIRMED')">✓ Xác nhận</button>`;
+        buttons += `<button class="btn btn-success me-2" onclick="quickUpdateStatus('CONFIRMED')">✓ Xác nhận đơn</button>`;
+        buttons += `<button class="btn btn-outline-danger" onclick="quickUpdateStatus('CANCELLED')">✕ Hủy đơn</button>`;
     } else if (status === 'CONFIRMED') {
-        buttons += `<button class="btn btn-primary me-2" onclick="quickUpdateStatus('IN_PROGRESS')">▶ Bắt đầu</button>`;
+        buttons += `<button class="btn btn-primary me-2" onclick="quickUpdateStatus('IN_PROGRESS')">▶ Bắt đầu thực hiện</button>`;
+        buttons += `<button class="btn btn-outline-danger" onclick="quickUpdateStatus('CANCELLED')">✕ Hủy đơn</button>`;
     } else if (status === 'IN_PROGRESS') {
         buttons += `<button class="btn btn-success me-2" onclick="quickUpdateStatus('COMPLETED')">✓ Hoàn thành</button>`;
-    }
-
-    if (status !== 'COMPLETED' && status !== 'CANCELLED') {
-        buttons += `<button class="btn btn-danger" onclick="quickUpdateStatus('CANCELLED')">✕ Hủy</button>`;
     }
 
     return buttons;
@@ -223,7 +345,17 @@ async function updateStatus() {
     const newStatus = document.getElementById('newStatus').value;
     const reason = document.getElementById('statusReason').value;
 
-    if (!confirm(`Bạn có chắc muốn cập nhật trạng thái sang "${newStatus}"?`)) {
+    const statusMap = {
+        'PENDING': 'Chờ xử lý',
+        'CONFIRMED': 'Đã xác nhận',
+        'IN_PROGRESS': 'Đang thực hiện',
+        'COMPLETED': 'Hoàn thành',
+        'CANCELLED': 'Đã hủy'
+    };
+
+    const confirmMsg = `Bạn có chắc chắn muốn cập nhật trạng thái đơn hàng sang "${statusMap[newStatus] || newStatus}"?\n\nHành động này sẽ được lưu vào lịch sử.`;
+
+    if (!confirm(confirmMsg)) {
         return;
     }
 
@@ -237,13 +369,31 @@ async function updateStatus() {
     }
 }
 
-async function quickUpdateStatus(statusCode) {
-    if (!confirm(`Bạn có chắc muốn cập nhật trạng thái sang "${statusCode}"?`)) {
+async function quickUpdateStatus(statusCode, reason = '') {
+    const statusMap = {
+        'CONFIRMED': 'Đã xác nhận',
+        'IN_PROGRESS': 'Đang thực hiện',
+        'COMPLETED': 'Hoàn thành',
+        'CANCELLED': 'Đã hủy'
+    };
+
+    let confirmMsg = `Bạn có chắc chắn muốn cập nhật trạng thái đơn hàng sang "${statusMap[statusCode] || statusCode}"?`;
+
+    if (statusCode === 'CANCELLED') {
+        confirmMsg = `GẤP: Bạn đang thực hiện HỦY đơn hàng này.\n\nBạn có chắc chắn muốn tiếp tục không?`;
+    }
+
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+
+    // Double check for cancellation if it wasn't a request
+    if (statusCode === 'CANCELLED' && !reason && !confirm("Xác nhận lần 2: Hành động này KHÔNG THỂ hoàn tác. Bạn vẫn muốn hủy?")) {
         return;
     }
 
     try {
-        await API.updateOrderStatus(orderId, statusCode);
+        await API.updateOrderStatus(orderId, statusCode, reason);
         showAlert('Cập nhật trạng thái thành công!', 'success');
         loadOrderDetail();
     } catch (error) {
@@ -314,9 +464,60 @@ function displayProgress(progressList) {
     container.innerHTML = timeline;
 }
 
-function assignStaff() {
-    window.location.href = `dashboard.html#orders`;
-    // TODO: Implement assign staff modal
+async function assignStaff() {
+    try {
+        // Fetch staff list first
+        // Use API helper instead of raw fetch to avoid BASE_URL issues
+        const staffList = await API.adminGetStaff();
+
+        const select = document.getElementById('staffSelect');
+        select.innerHTML = '<option value="">-- Chọn nhân viên --</option>';
+        staffList.forEach(s => {
+            select.innerHTML += `<option value="${s.user_id}">${s.full_name} (${s.email})</option>`;
+        });
+
+        // Set default note based on context using current status
+        const status = currentOrder.status.status_code;
+        const noteInput = document.getElementById('assignNotes');
+        if (status === 'CONFIRMED') {
+            document.getElementById('assignModalTitle').textContent = 'Phân công nhân viên chính';
+            noteInput.value = 'Nhân viên chính';
+        } else if (status === 'IN_PROGRESS') {
+            document.getElementById('assignModalTitle').textContent = 'Thêm nhân viên hỗ trợ';
+            noteInput.value = 'Nhân viên hỗ trợ';
+        } else {
+            noteInput.value = '';
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('assignStaffModal'));
+        modal.show();
+
+    } catch (error) {
+        // Handle potential errors from API helper
+        const msg = error.message || 'Không thể tải danh sách nhân viên';
+        showAlert('Lỗi: ' + msg, 'danger');
+    }
+}
+
+async function submitAssignment() {
+    const staffId = document.getElementById('staffSelect').value;
+    const notes = document.getElementById('assignNotes').value;
+
+    if (!staffId) {
+        alert('Vui lòng chọn nhân viên');
+        return;
+    }
+
+    try {
+        // Use API helper
+        await API.adminAssignOrder(orderId, { staff_id: staffId, notes: notes });
+
+        showAlert('Phân công thành công!', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('assignStaffModal')).hide();
+        loadOrderDetail();
+    } catch (e) {
+        showAlert('Lỗi: ' + e.message, 'danger');
+    }
 }
 
 // Utility functions

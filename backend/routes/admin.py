@@ -430,24 +430,69 @@ def admin_assign_order(order_id):
         order = Order.query.get_or_404(order_id)
         data = request.get_json()
         staff_id = data.get('staff_id')
+        notes = data.get('notes')
         
         if not staff_id:
             return jsonify({'error': 'staff_id là bắt buộc'}), 400
+            
+        try:
+            staff_id = int(staff_id)
+        except ValueError:
+            return jsonify({'error': 'staff_id phải là số'}), 400
+            
+        status_code = order.status.status_code
         
+        # Validate status logic
+        if status_code in ['PENDING', 'COMPLETED', 'CANCELLED']:
+            return jsonify({'error': f'Không thể phân công nhân viên ở trạng thái {status_code}'}), 400
+            
         # Kiểm tra staff tồn tại và là STAFF
         staff = User.query.get(staff_id)
         if not staff or staff.role.role_name != 'STAFF':
             return jsonify({'error': 'Staff không tồn tại hoặc không phải STAFF'}), 400
-        
-        # Vô hiệu hóa các assignment cũ
-        OrderAssignment.query.filter_by(order_id=order_id, is_active=True).update({'is_active': False})
+            
+        # Logic phân công theo trạng thái
+        if status_code == 'CONFIRMED':
+            # Giai đoạn 2: Chỉ 1 nhân viên chính -> Gỡ người cũ (nếu có)
+            # Trước khi set False, kiểm tra xem việc set False có gây trùng lặp không (UQ_Order_Staff_Active)
+            current_assignments = OrderAssignment.query.filter_by(order_id=order_id, is_active=True).all()
+            for ca in current_assignments:
+                # Kiểm tra xem đã có bản ghi inactive của staff này chưa
+                existing_inactive = OrderAssignment.query.filter_by(
+                    order_id=order_id, 
+                    staff_id=ca.staff_id, 
+                    is_active=False
+                ).first()
+                if existing_inactive:
+                    # Nếu đã có, xóa cái cũ đi để nhường chỗ cho cái mới (giữ lại history mới nhất)
+                    db.session.delete(existing_inactive)
+            
+            # Sau khi dọn dẹp, mới update active=False
+            OrderAssignment.query.filter_by(order_id=order_id, is_active=True).update({'is_active': False})
+            
+            if not notes:
+                notes = "Nhân viên chính"
+                
+        elif status_code == 'IN_PROGRESS':
+            # Giai đoạn 3: Cho phép thêm người hỗ trợ -> KHÔNG gỡ người cũ
+            # Kiểm tra xem staff này đã được assign chưa
+            existing = OrderAssignment.query.filter_by(
+                order_id=order_id, 
+                staff_id=staff_id, 
+                is_active=True
+            ).first()
+            if existing:
+                return jsonify({'error': f'Nhân viên {staff.full_name} đã được phân công vào đơn hàng này rồi'}), 400
+                
+            if not notes:
+                notes = "Nhân viên hỗ trợ"
         
         # Tạo assignment mới
         assignment = OrderAssignment(
             order_id=order_id,
             staff_id=staff_id,
             assigned_by=admin.user_id,
-            notes=data.get('notes')
+            notes=notes
         )
         
         db.session.add(assignment)

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCLEAR - Dịch vụ vệ sinh văn phòng</title>
+    <title>Dịch vụ - PCLEAR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -26,7 +26,7 @@
                         <a class="nav-link" href="index.html">Trang chủ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="services.html">Dịch vụ</a>
+                        <a class="nav-link active" href="services.html">Dịch vụ</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="about.html">Giới thiệu</a>
@@ -57,157 +57,44 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section py-5 d-flex align-items-center"
-        style="min-height: 80vh; background: linear-gradient(135deg, #f6fbf9 0%, #e0f2fe 100%);">
+    <!-- Page Header -->
+    <!-- Page Header -->
+    <header class="bg-light py-5 mb-5 border-bottom">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 text-center text-lg-start">
-                    <h1 class="display-3 fw-bold mb-4 text-primary-dark">Không gian sạch,<br>Nâng tầm hiệu suất</h1>
-                    <p class="lead mb-4 text-muted">Dịch vụ vệ sinh văn phòng chuyên nghiệp số 1. Đội ngũ tận tâm, quy
-                        trình chuẩn Nhật Bản. Đặt lịch chỉ trong 30 giây.</p>
-                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
-                        <a href="services.html" class="btn btn-primary btn-lg px-4 shadow-sm rounded-pill">Đặt dịch vụ
-                            ngay</a>
-                        <a href="about.html" class="btn btn-outline-primary btn-lg px-4 rounded-pill">Tìm hiểu thêm</a>
-                    </div>
-                    <div
-                        class="mt-4 pt-3 d-flex gap-4 justify-content-center justify-content-lg-start text-muted small">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success-subtle text-success rounded-pill">✓</span> 100% Hài lòng
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success-subtle text-success rounded-pill">✓</span> Giá minh bạch
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success-subtle text-success rounded-pill">✓</span> Hỗ trợ 24/7
-                        </div>
-                    </div>
-                </div>
-                <!-- Hero Image Placeholder (Optional - can be added later) -->
-                <div class="col-lg-6 d-none d-lg-block text-center">
-                    <img src="images/services/1.jpg" alt="Vệ sinh văn phòng" class="img-fluid rounded-4 shadow-lg"
-                        style="transform: rotate(2deg);">
-                </div>
-            </div>
-        </div>
-    </section>
+            <div class="text-center">
+                <h1 class="display-5 fw-bold text-body-emphasis">Dịch vụ vệ sinh</h1>
+                <p class="lead text-body-secondary mb-4">Chúng tôi cung cấp các gói dịch vụ vệ sinh chuyên nghiệp cho
+                    văn phòng của bạn</p>
 
-    <!-- Services Preview -->
-    <section class="services-section py-5 bg-white">
-        <div class="container">
-            <div class="text-center mb-5">
-                <span class="badge bg-primary-subtle text-primary mb-2">DỊCH VỤ CỦA CHÚNG TÔI</span>
-                <h2 class="fw-bold display-6">Giải pháp vệ sinh toàn diện</h2>
-                <p class="text-muted mx-auto" style="max-width: 600px;">Chúng tôi cung cấp đa dạng các gói dịch vụ vệ
-                    sinh phù hợp với mọi nhu cầu của doanh nghiệp bạn.</p>
-            </div>
-            <div class="row" id="servicesList">
-                <!-- Services will be loaded here -->
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mt-5">
-                <a href="services.html" class="btn btn-outline-primary rounded-pill px-4">Xem tất cả dịch vụ →</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Why Choose Us (Trust Section) -->
-    <section class="py-5 bg-light-subtle">
-        <div class="container">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-5">
-                    <div class="ps-lg-5">
-                        <span class="badge bg-success-subtle text-success mb-2">TẠI SAO CHỌN PCLEAR?</span>
-                        <h2 class="fw-bold mb-4 display-6">Niềm tin được xây dựng từ chất lượng</h2>
-                        <p class="text-muted mb-4">Chúng tôi hiểu rằng môi trường làm việc sạch sẽ là yếu tố then chốt
-                            để nâng cao năng suất và tinh thần làm việc của nhân viên.</p>
-
-                        <div class="d-flex align-items-start gap-3 mb-3">
-                            <div class="bg-white p-2 rounded shadow-sm text-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                    class="bi bi-shield-check" viewBox="0 0 16 16">
-                                    <path
-                                        d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z" />
-                                    <path
-                                        d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h5 class="fw-semibold mb-1">Đáng tin cậy</h5>
-                                <p class="text-muted small mb-0">Nhân viên được xác minh danh tính, đào tạo bài bản và
-                                    giám sát chặt chẽ.</p>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-start gap-3 mb-3">
-                            <div class="bg-white p-2 rounded shadow-sm text-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                    class="bi bi-clock-history" viewBox="0 0 16 16">
-                                    <path
-                                        d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.433l-.707-.708z" />
-                                    <path
-                                        d="M8 1a7 7 0 1 0 4.95 4.95A7.01 7.01 0 0 0 8 1zm3.5 10.5a.5.5 0 0 1-.708 0L7.5 7.707V4.5a.5.5 0 0 1 1 0V7.293l3.207 3.207a.5.5 0 0 1 0 .708z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h5 class="fw-semibold mb-1">Đúng giờ & Nhanh chóng</h5>
-                                <p class="text-muted small mb-0">Quy trình đặt lịch đơn giản, nhân viên có mặt đúng giờ,
-                                    hoàn thành đúng tiến độ.</p>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="bg-white p-2 rounded shadow-sm text-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                    class="bi bi-wallet2" viewBox="0 0 16 16">
-                                    <path
-                                        d="M12.136 3h-6.703a2 2 0 0 0-2-1.992l.84-.84A1.5 1.5 0 0 1 5.333 0h5.334a1.5 1.5 0 0 1 1.06.44l.84.84a2 2 0 0 0-2 1.72zM2 3h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h5 class="fw-semibold mb-1">Giá cả minh bạch</h5>
-                                <p class="text-muted small mb-0">Không phí ẩn, báo giá rõ ràng chi tiết trước khi thực
-                                    hiện dịch vụ.</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-lg-7">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center border border-light">
-                                <h3 class="display-4 fw-bold text-primary mb-0">500+</h3>
-                                <p class="text-muted small">Khách hàng tin dùng</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center border border-light">
-                                <h3 class="display-4 fw-bold text-success mb-0">98%</h3>
-                                <p class="text-muted small">Đánh giá 5 sao</p>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div
-                                class="p-4 bg-primary text-white rounded-4 shadow h-100 d-flex align-items-center justify-content-between">
-                                <div>
-                                    <h4 class="fw-bold mb-1">Sẵn sàng trải nghiệm?</h4>
-                                    <p class="small text-white-50 mb-0">Đặt lịch ngay hôm nay để nhận ưu đãi cho khách
-                                        hàng mới.</p>
-                                </div>
-                                <a href="services.html" class="btn btn-light rounded-pill px-4">Đặt ngay</a>
-                            </div>
+                <!-- Search Box -->
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="input-group input-group-lg shadow rounded-pill overflow-hidden bg-white">
+                            <span class="input-group-text bg-white border-0 ps-4 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control border-0 ps-2" id="serviceSearch"
+                                placeholder="Tìm kiếm dịch vụ (ví dụ: giặt ghế, lau kính...)"
+                                aria-label="Search services">
+                            <button class="btn btn-primary px-4 fw-bold" type="button">Tìm kiếm</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </header>
+
+    <!-- Services Content -->
+    <div class="container mb-5">
+        <div class="row" id="servicesList">
+            <!-- Services will be loaded here -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-dark text-light pt-5 pb-3 mt-auto">
@@ -424,11 +311,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <!-- dùng lại logic login/register -->
     <script src="js/login.js"></script>
     <script src="js/booking.js"></script>
-    <script src="js/index.js"></script>
+    <!-- Use services.js for advanced logic -->
+    <script src="js/services.js"></script>
 </body>
 
 </html>
-```

@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - PCLEAR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm py-2">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="dashboard.html">🧹 PCLEAR Admin</a>
+            <a class="navbar-brand fw-semibold py-0" href="dashboard.html">
+                <img src="../images/logo/logo.png" alt="PCLEAR" class="navbar-logo">
+            </a>
             <div class="d-flex align-items-center gap-3 ms-auto">
-                <span class="text-white-50 small d-none d-md-inline" id="adminWelcome"></span>
-                <a class="btn btn-outline-light btn-sm" href="#" id="logoutLink">Đăng xuất</a>
+                <span class="text-muted small d-none d-md-inline" id="adminWelcome"></span>
             </div>
         </div>
     </nav>
@@ -23,29 +27,43 @@
             <!-- Sidebar -->
             <aside class="col-12 col-lg-2 border-end bg-light-subtle p-0 min-vh-100">
                 <div class="p-3">
-                    <div class="fw-semibold mb-2">Quản trị</div>
+                    <div class="fw-semibold mb-2">Tác vụ quản trị</div>
                     <div class="list-group list-group-flush">
-                        <a class="list-group-item list-group-item-action active" href="#dashboard" onclick="switchTab('dashboard'); return false;">
+                        <a class="list-group-item list-group-item-action active" href="#dashboard"
+                            onclick="switchTab('dashboard'); return false;">
                             📊 Dashboard
                         </a>
-                        <a class="list-group-item list-group-item-action" href="#orders" onclick="switchTab('orders'); return false;">
-                            📦 Đơn hàng
+                        <a class="list-group-item list-group-item-action" href="#orders"
+                            onclick="switchTab('orders'); return false;">
+                            📦 Đơn dịch vụ
                         </a>
-                        <a class="list-group-item list-group-item-action" href="#services" onclick="switchTab('services'); return false;">
+                        <a class="list-group-item list-group-item-action" href="#services"
+                            onclick="switchTab('services'); return false;">
                             🛠️ Dịch vụ
                         </a>
-                        <a class="list-group-item list-group-item-action" href="#categories" onclick="switchTab('categories'); return false;">
-                            📁 Danh mục
+                        <a class="list-group-item list-group-item-action" href="#categories"
+                            onclick="switchTab('categories'); return false;">
+                            📁 Danh mục dịch vụ
                         </a>
-                        <a class="list-group-item list-group-item-action" href="#users" onclick="switchTab('users'); return false;">
+                        <a class="list-group-item list-group-item-action" href="#users"
+                            onclick="switchTab('users'); return false;">
                             👥 Người dùng
                         </a>
-                        <a class="list-group-item list-group-item-action" href="#staff" onclick="switchTab('staff'); return false;">
+                        <a class="list-group-item list-group-item-action" href="#staff"
+                            onclick="switchTab('staff'); return false;">
                             👨‍💼 Nhân viên
                         </a>
-                        <a class="list-group-item list-group-item-action" href="#content" onclick="switchTab('content'); return false;">
+                        <a class="list-group-item list-group-item-action" href="#content"
+                            onclick="switchTab('content'); return false;">
                             📝 Nội dung
                         </a>
+
+                        <!-- Logout in sidebar -->
+                        <div class="mt-4 pt-3 border-top">
+                            <a class="list-group-item list-group-item-action text-danger" href="#" id="logoutLink">
+                                🚪 Đăng xuất
+                            </a>
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -55,7 +73,8 @@
                 <!-- Dashboard Tab -->
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="dashboard">
-                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-4">
+                        <div
+                            class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-4">
                             <div>
                                 <h2 class="mb-1">Dashboard</h2>
                                 <div class="text-muted small">Tổng quan hệ thống</div>
@@ -68,34 +87,60 @@
                         <!-- Stats Cards -->
                         <div class="row g-3 mb-4">
                             <div class="col-12 col-md-3">
-                                <div class="card shadow-sm">
+                                <div class="card shadow-sm border-0 bg-primary text-white h-100">
                                     <div class="card-body">
-                                        <div class="text-muted small">Tổng người dùng</div>
-                                        <div class="fs-3 fw-semibold" id="statTotalUsers">—</div>
+                                        <div class="text-white-50 small mb-1">Tổng người dùng</div>
+                                        <div class="fs-2 fw-bold" id="statTotalUsers">—</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-3">
-                                <div class="card shadow-sm">
+                                <div class="card shadow-sm border-0 bg-success text-white h-100">
                                     <div class="card-body">
-                                        <div class="text-muted small">Tổng đơn hàng</div>
-                                        <div class="fs-3 fw-semibold" id="statTotalOrders">—</div>
+                                        <div class="text-white-50 small mb-1">Tổng đơn hàng</div>
+                                        <div class="fs-2 fw-bold" id="statTotalOrders">—</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-3">
-                                <div class="card shadow-sm">
+                                <div class="card shadow-sm border-0 bg-info text-white h-100">
                                     <div class="card-body">
-                                        <div class="text-muted small">Tổng doanh thu</div>
-                                        <div class="fs-3 fw-semibold" id="statTotalRevenue">—</div>
+                                        <div class="text-white-50 small mb-1">Tổng doanh thu</div>
+                                        <div class="fs-2 fw-bold" id="statTotalRevenue">—</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-3">
-                                <div class="card shadow-sm">
+                                <div class="card shadow-sm border-0 bg-warning text-dark h-100">
                                     <div class="card-body">
-                                        <div class="text-muted small">Đơn chờ xử lý</div>
-                                        <div class="fs-3 fw-semibold" id="statPendingOrders">—</div>
+                                        <div class="text-black-50 small mb-1">Đơn chờ xử lý</div>
+                                        <div class="fs-2 fw-bold" id="statPendingOrders">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Section -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12 col-lg-8">
+                                <div class="card shadow-sm border-0 h-100">
+                                    <div class="card-header bg-white border-0 py-3">
+                                        <h6 class="card-title mb-0 fw-bold">Doanh thu theo thời gian</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="revenueChart" style="height: 300px; width: 100%;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-4">
+                                <div class="card shadow-sm border-0 h-100">
+                                    <div class="card-header bg-white border-0 py-3">
+                                        <h6 class="card-title mb-0 fw-bold">Trạng thái đơn hàng</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div style="height: 300px; position: relative;">
+                                            <canvas id="orderStatusChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -104,14 +149,17 @@
 
                     <!-- Orders Tab -->
                     <div class="tab-pane fade" id="orders">
-                        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-2 mb-4">
+                        <div
+                            class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-2 mb-4">
                             <div>
-                                <h5 class="mb-1">Quản lý đơn hàng</h5>
-                                <div class="text-muted small">Lọc nhanh theo trạng thái / tìm kiếm mã đơn.</div>
+                                <h5 class="mb-1">Quản lý đơn dịch vụ</h5>
+
                             </div>
                             <div class="d-flex flex-wrap gap-2">
-                                <input class="form-control form-control-sm" style="min-width:180px" placeholder="Tìm mã đơn / khách..." id="orderSearch">
-                                <select class="form-select form-select-sm" id="orderStatusFilter" style="min-width:160px">
+                                <input class="form-control form-control-sm" style="min-width:180px"
+                                    placeholder="Tìm mã đơn / khách..." id="orderSearch">
+                                <select class="form-select form-select-sm" id="orderStatusFilter"
+                                    style="min-width:160px">
                                     <option value="">Tất cả trạng thái</option>
                                     <option value="PENDING">Chờ xử lý</option>
                                     <option value="CONFIRMED">Đã xác nhận</option>
@@ -136,11 +184,15 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="mb-1">Quản lý dịch vụ</h5>
-                                <div class="text-muted small">Thêm, sửa, xóa dịch vụ</div>
+
                             </div>
-                            <button class="btn btn-primary btn-sm" onclick="showServiceModal()">
-                                ➕ Thêm dịch vụ
-                            </button>
+                            <div class="d-flex gap-2">
+                                <input class="form-control form-control-sm" style="min-width:200px"
+                                    placeholder="Tìm tên dịch vụ..." id="serviceSearch">
+                                <button class="btn btn-primary btn-sm" onclick="showServiceModal()">
+                                    ➕ Thêm dịch vụ
+                                </button>
+                            </div>
                         </div>
                         <div class="card shadow-sm">
                             <div class="card-body">
@@ -153,12 +205,16 @@
                     <div class="tab-pane fade" id="categories">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
-                                <h5 class="mb-1">Quản lý danh mục</h5>
-                                <div class="text-muted small">Thêm, sửa, xóa danh mục dịch vụ</div>
+                                <h5 class="mb-1">Quản lý danh mục dịch vụ</h5>
+
                             </div>
-                            <button class="btn btn-primary btn-sm" onclick="showCategoryModal()">
-                                ➕ Thêm danh mục
-                            </button>
+                            <div class="d-flex gap-2">
+                                <input class="form-control form-control-sm" style="min-width:200px"
+                                    placeholder="Tìm danh mục..." id="categorySearch">
+                                <button class="btn btn-primary btn-sm" onclick="showCategoryModal()">
+                                    ➕ Thêm danh mục dịch vụ
+                                </button>
+                            </div>
                         </div>
                         <div class="card shadow-sm">
                             <div class="card-body">
@@ -172,10 +228,12 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="mb-1">Quản lý người dùng</h5>
-                                <div class="text-muted small">Xem danh sách, khóa/mở khóa tài khoản</div>
                             </div>
                             <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="userRoleFilter" style="min-width:150px" onchange="loadUsers()">
+                                <input class="form-control form-control-sm" style="min-width:200px"
+                                    placeholder="Tìm tên / email / sđt..." id="userSearch">
+                                <select class="form-select form-select-sm" id="userRoleFilter" style="min-width:150px"
+                                    onchange="loadUsers()">
                                     <option value="">Tất cả</option>
                                     <option value="ADMIN">Admin</option>
                                     <option value="STAFF">Nhân viên</option>
@@ -198,11 +256,15 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="mb-1">Quản lý nhân viên</h5>
-                                <div class="text-muted small">Danh sách nhân viên và phân công đơn hàng</div>
+
                             </div>
-                            <button class="btn btn-sm btn-outline-primary" onclick="loadStaff()">
-                                🔄 Tải lại
-                            </button>
+                            <div class="d-flex gap-2">
+                                <input class="form-control form-control-sm" style="min-width:200px"
+                                    placeholder="Tìm nhân viên..." id="staffSearch">
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadStaff()">
+                                    🔄 Tải lại
+                                </button>
+                            </div>
                         </div>
                         <div class="card shadow-sm">
                             <div class="card-body">
@@ -216,10 +278,13 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="mb-1">Quản lý nội dung</h5>
-                                <div class="text-muted small">Quản lý banner, about, giới thiệu dịch vụ</div>
+
                             </div>
                             <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="contentTypeFilter" style="min-width:150px" onchange="loadContent()">
+                                <input class="form-control form-control-sm" style="min-width:200px"
+                                    placeholder="Tìm tiêu đề..." id="contentSearch">
+                                <select class="form-select form-select-sm" id="contentTypeFilter"
+                                    style="min-width:150px" onchange="loadContent()">
                                     <option value="">Tất cả</option>
                                     <option value="BANNER">Banner</option>
                                     <option value="ABOUT">About</option>
@@ -406,6 +471,48 @@
         </div>
     </div>
 
+    <!-- User Detail Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thông tin chi tiết</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Họ tên</dt>
+                        <dd class="col-sm-8" id="detailFullName">—</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8" id="detailEmail">—</dd>
+
+                        <dt class="col-sm-4">Username</dt>
+                        <dd class="col-sm-8" id="detailUsername">—</dd>
+
+                        <dt class="col-sm-4">Số điện thoại</dt>
+                        <dd class="col-sm-8" id="detailPhone">—</dd>
+
+                        <dt class="col-sm-4">Địa chỉ</dt>
+                        <dd class="col-sm-8" id="detailAddress">—</dd>
+
+                        <dt class="col-sm-4">Vai trò</dt>
+                        <dd class="col-sm-8" id="detailRole">—</dd>
+
+                        <dt class="col-sm-4">Hạng thành viên</dt>
+                        <dd class="col-sm-8" id="detailMemberLevel">—</dd>
+
+                        <dt class="col-sm-4">Trạng thái</dt>
+                        <dd class="col-sm-8" id="detailStatus">—</dd>
+                    </dl>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Assign Staff Modal -->
     <div class="modal fade" id="assignStaffModal" tabindex="-1">
         <div class="modal-dialog">
@@ -440,4 +547,5 @@
     <script src="../js/auth.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
+
 </html>

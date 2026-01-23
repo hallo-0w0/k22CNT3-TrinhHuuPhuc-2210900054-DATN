@@ -10,12 +10,14 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm py-2">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="dashboard.html">🧹 PCLEAR Admin</a>
+            <a class="navbar-brand fw-semibold py-0" href="dashboard.html">
+                <img src="../images/logo/logo.png" alt="PCLEAR" class="navbar-logo">
+            </a>
             <div class="d-flex align-items-center gap-3 ms-auto">
-                <a class="btn btn-outline-light btn-sm" href="dashboard.html#orders">← Về danh sách</a>
-                <a class="btn btn-outline-light btn-sm" href="#" id="logoutLink">Đăng xuất</a>
+                <a class="btn btn-outline-primary btn-sm" href="dashboard.html#orders">← Về danh sách</a>
+                <a class="btn btn-outline-danger btn-sm" href="#" id="logoutLink">Đăng xuất</a>
             </div>
         </div>
     </nav>
@@ -126,6 +128,38 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                     <button type="button" class="btn btn-primary" onclick="updateStatus()">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- Assign Staff Modal -->
+    <div class="modal fade" id="assignStaffModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignModalTitle">Phân công nhân viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignStaffForm">
+                        <div class="mb-3">
+                            <label class="form-label">Chọn nhân viên *</label>
+                            <select class="form-select" id="staffSelect" required>
+                                <option value="">-- Chọn nhân viên --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú phân công</label>
+                            <input type="text" class="form-control" id="assignNotes"
+                                placeholder="Nhân viên chính / hỗ trợ...">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAssignment()">Lưu phân
+                        công</button>
                 </div>
             </div>
         </div>

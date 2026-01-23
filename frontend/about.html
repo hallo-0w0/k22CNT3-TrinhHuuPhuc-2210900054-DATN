@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu - PCLEAR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm py-2">
+        <div class="container">
+            <a class="navbar-brand py-0" href="index.html">
+                <img src="images/logo/logo.png" alt="PCLEAR" class="navbar-logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Chung cho tất cả -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Dịch vụ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="about.html">Giới thiệu</a>
+                    </li>
+
+                    <!-- Menu cho Khách (Chưa đăng nhập) -->
+                    <li class="nav-item" id="guestNav">
+                        <a class="nav-link" href="#auth" id="loginLink" data-bs-toggle="modal"
+                            data-bs-target="#authModal">Đăng nhập</a>
+                    </li>
+
+                    <!-- Menu cho Thành viên (Đã đăng nhập) -->
+                    <li class="nav-item member-nav d-none">
+                        <a class="nav-link" href="#" id="userProfileLink" data-bs-toggle="modal"
+                            data-bs-target="#memberBenefitsModal">
+                            <span id="headerUserName" class="fw-bold">User</span>
+                            <span id="headerMemberBadge" class="badge bg-secondary ms-1">Silver</span>
+                        </a>
+                    </li>
+                    <li class="nav-item member-nav d-none">
+                        <a class="nav-link" href="customer/orders.html">Đơn hàng</a>
+                    </li>
+                    <li class="nav-item member-nav d-none">
+                        <a class="nav-link" href="#" id="logoutLink">Đăng xuất</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-primary text-white py-5 mb-5 position-relative overflow-hidden">
+        <div class="container position-relative z-1">
+            <div class="row align-items-center py-5">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-3">Nâng tầm không gian sống của bạn</h1>
+                    <p class="lead mb-4 opacity-75">Hơn 10 năm kinh nghiệm trong lĩnh vực vệ sinh công nghiệp, PCLEAR
+                        cam
+                        kết mang lại sự sạch sẽ và an toàn tuyệt đối.</p>
+                    <a href="services.html" class="btn btn-light btn-lg px-4 fw-bold text-primary rounded-pill">Khám phá
+                        dịch vụ</a>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-end">
+                    <img src="images/logo/logo.png" alt="PCLEAR Hero" class="img-fluid bg-white rounded-4 shadow p-4"
+                        style="max-width: 400px; opacity: 0.9;">
+                </div>
+            </div>
+        </div>
+        <!-- Decorative shapes -->
+        <div class="position-absolute top-0 end-0 translate-middle-y bg-white opacity-10 rounded-circle"
+            style="width: 400px; height: 400px; filter: blur(50px);"></div>
+        <div class="position-absolute bottom-0 start-0 translate-middle p-5 bg-warning opacity-25 rounded-circle"
+            style="width: 300px; height: 300px; filter: blur(60px);"></div>
+    </section>
+
+    <!-- Stats Section -->
+    <div class="container mb-5">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6">
+                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
+                    <h2 class="display-5 fw-bold text-primary mb-0">10+</h2>
+                    <p class="text-muted mb-0">Năm kinh nghiệm</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
+                    <h2 class="display-5 fw-bold text-primary mb-0">5k+</h2>
+                    <p class="text-muted mb-0">Khách hàng hài lòng</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
+                    <h2 class="display-5 fw-bold text-primary mb-0">200+</h2>
+                    <p class="text-muted mb-0">Nhân viên tận tâm</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
+                    <h2 class="display-5 fw-bold text-primary mb-0">24/7</h2>
+                    <p class="text-muted mb-0">Hỗ trợ khách hàng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Content -->
+    <div class="container mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="position-relative">
+                    <img src="images/about/logo.png" class="img-fluid rounded-4 shadow-lg w-100" alt="Về chúng tôi"
+                        style="object-fit: cover; min-height: 400px;">
+                    <div class="position-absolute bottom-0 end-0 bg-white p-4 rounded-top-4 shadow-lg m-3"
+                        style="max-width: 300px;">
+                        <p class="mb-0 fst-italic text-muted">"Sạch sẽ là khởi đầu của mọi sự thành công."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 ps-lg-5">
+                <h6 class="text-uppercase text-primary fw-bold mb-2">Câu chuyện của chúng tôi</h6>
+                <h2 class="fw-bold mb-4">PCLEAR - Giải pháp vệ sinh toàn diện cho doanh nghiệp</h2>
+                <p class="text-secondary mb-4">
+                    PCLEAR được thành lập với sứ mệnh mang lại môi trường làm việc trong lành, sạch đẹp và chuyên
+                    nghiệp. Chúng tôi hiểu rằng, một không gian sạch sẽ không chỉ bảo vệ sức khỏe mà còn nâng cao tinh
+                    thần và hiệu suất làm việc.
+                </p>
+
+                <div class="d-flex align-items-start mb-3">
+                    <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="bi bi-star-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Chất lượng hàng đầu</h5>
+                        <p class="text-muted small">Quy trình kiểm soát chất lượng nghiêm ngặt tiêu chuẩn ISO.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-3">
+                    <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="bi bi-people-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Đội ngũ chuyên nghiệp</h5>
+                        <p class="text-muted small">Nhân viên được đào tạo bài bản, lý lịch rõ ràng, tận tâm.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start">
+                    <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="bi bi-shield-check" viewBox="0 0 16 16">
+                            <path
+                                d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.938.533.38.15.76.242 1.22.242.459 0 .837-.092 1.216-.242.286-.113.592-.289.938-.533a10.725 10.725 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.23-4.95-1.428-4.95-1.428S6.005 1.26 5.338 1.59zm1.332 7.132-.99 2.89a.5.5 0 0 0 .626.626l2.89-.99a.5.5 0 0 0 .584-1.2l-2.89-1.076a.5.5 0 0 0-.22.15z" />
+                            <path
+                                d="M8 1a2 2 0 0 1 2 2v2H6V3a2 2 0 0 1 2-2zm3 4V3a3 3 0 1 0-6 0v2H3.5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H11z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">An toàn tuyệt đối</h5>
+                        <p class="text-muted small">Sử dụng hóa chất thân thiện môi trường, an toàn cho sức khỏe.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section (3 Cards) -->
+    <div class="bg-light py-5 mb-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h6 class="text-uppercase text-primary fw-bold">Giá trị cốt lõi</h6>
+                <h2 class="fw-bold">Cam kết của chúng tôi</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3 text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                                    class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                </svg>
+                            </div>
+                            <h4 class="card-title fw-bold">Tận Tâm</h4>
+                            <p class="card-text text-muted">Chúng tôi làm việc với tất cả sự nhiệt huyết, coi văn phòng
+                                của khách hàng như chính ngôi nhà của mình.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3 text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                                    class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div>
+                            <h4 class="card-title fw-bold">Uy Tín</h4>
+                            <p class="card-text text-muted">Luôn đúng giờ, hoàn thành đúng cam kết và chịu trách nhiệm
+                                cao nhất về chất lượng dịch vụ.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3 text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                                    class="bi bi-lightning-charge-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z" />
+                                </svg>
+                            </div>
+                            <h4 class="card-title fw-bold">Hiệu Quả</h4>
+                            <p class="card-text text-muted">Quy trình tối ưu giúp tiết kiệm thời gian và chi phí cho
+                                khách hàng nhưng vẫn đảm bảo chất lượng.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section (Accordion) -->
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h6 class="text-uppercase text-primary fw-bold">Hỏi đáp</h6>
+                    <h2 class="fw-bold">Câu hỏi thường gặp (FAQ)</h2>
+                    <p class="text-muted">Giải đáp các thắc mắc phổ biến về dịch vụ của PCLEAR</p>
+                </div>
+
+                <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden border" id="faqAccordion">
+
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingOne">
+                            <button class="accordion-button fw-bold py-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseOne" aria-expanded="true"
+                                aria-controls="flush-collapseOne">
+                                1. PCLEAR cung cấp dịch vụ ở những khu vực nào?
+                            </button>
+                        </h2>
+                        <div id="flush-collapseOne" class="accordion-collapse collapse show"
+                            aria-labelledby="flush-headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Hiện tại PCLEAR phục vụ tất cả các quận huyện trong khu vực TP. Hồ Chí Minh và Hà Nội.
+                                Đối với các tỉnh lân cận, vui lòng liên hệ hotline để được tư vấn chi tiết.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingTwo">
+                            <button class="accordion-button collapsed fw-bold py-3" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false"
+                                aria-controls="flush-collapseTwo">
+                                2. Tôi có cần chuẩn bị dụng cụ vệ sinh không?
+                            </button>
+                        </h2>
+                        <div id="flush-collapseTwo" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                <strong>Không cần.</strong> Nhân viên của PCLEAR sẽ mang theo đầy đủ thiết bị, dụng cụ
+                                và hóa chất
+                                chuyên dụng cần thiết để thực hiện công việc. Quý khách chỉ cần cung cấp nguồn điện và
+                                nước.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingThree">
+                            <button class="accordion-button collapsed fw-bold py-3" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false"
+                                aria-controls="flush-collapseThree">
+                                3. Làm sao để tôi biết giá chính xác?
+                            </button>
+                        </h2>
+                        <div id="flush-collapseThree" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Giá dịch vụ được niêm yết công khai trên website ở mục <a href="services.html">Dịch
+                                    vụ</a>.
+                                Tuy nhiên, đối với các công trình lớn hoặc yêu cầu đặc biệt, nhân viên PCLEAR sẽ đến
+                                khảo sát
+                                trực tiếp và báo giá chi tiết hoàn toàn miễn phí.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingFour">
+                            <button class="accordion-button collapsed fw-bold py-3" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false"
+                                aria-controls="flush-collapseFour">
+                                4. Tôi có thể thay đổi lịch đặt không?
+                            </button>
+                        </h2>
+                        <div id="flush-collapseFour" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Có. Quý khách có thể thay đổi hoặc hủy lịch miễn phí nếu thông báo trước 24 giờ.
+                                Vui lòng vào mục <a href="customer/orders.html">Đơn hàng</a> hoặc liên hệ hotline để
+                                được hỗ trợ.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light pt-5 pb-3 mt-auto">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold text-white mb-3">
+                        <img src="images/logo/logo.png" alt="PCLEAR"
+                            style="height: 30px; filter: brightness(0) invert(1);"> PCLEAR
+                    </h5>
+                    <p class="text-white-50 small">Đơn vị cung cấp dịch vụ vệ sinh văn phòng chuyên nghiệp hàng đầu.
+                        Chúng tôi mang đến giải pháp làm sạch toàn diện, an toàn và hiệu quả cho doanh nghiệp của bạn.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Liên kết</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="index.html"
+                                class="text-white-50 text-decoration-none hover-white">Trang chủ</a></li>
+                        <li class="mb-2"><a href="services.html"
+                                class="text-white-50 text-decoration-none hover-white">Dịch vụ</a></li>
+                        <li class="mb-2"><a href="about.html"
+                                class="text-white-50 text-decoration-none hover-white">Giới thiệu</a></li>
+                        <li class="mb-2"><a href="#auth" class="text-white-50 text-decoration-none hover-white">Đăng
+                                nhập</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Dịch vụ</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Vệ sinh văn
+                                phòng</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Vệ sinh công
+                                nghiệp</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Giặt thảm &
+                                ghế</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Phun khử
+                                khuẩn</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Liên hệ</h6>
+                    <ul class="list-unstyled small text-white-50">
+                        <li class="mb-2">📍 123 Nguyễn Trãi, Thanh Xuân, Hà Nội</li>
+                        <li class="mb-2">📞 Hotline/Zalo: 0336.350.933</li>
+                        <li class="mb-2">✉️ toiduaroima@gmail.com</li>
+                        <li class="mb-2">🌐 <a href="https://www.facebook.com/phuc.trinh.3557440"
+                                class="text-white-50 text-decoration-none hover-white" target="_blank">Facebook: Phuc
+                                Trinh</a></li>
+                        <li class="mb-2">⏰ 8:00 - 18:00 (T2 - CN)</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary opacity-25">
+            <div class="text-center text-white-50 small">
+                <p class="mb-0">&copy; 2026 PCLEAR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (Login/Register) -->
+    <div class="modal fade pclear-modal" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <div class="fw-semibold">
+                            <img src="images/logo/logo.png" alt="PCLEAR" style="height: 30px;">
+                        </div>
+                        <div class="text-muted small">Đăng nhập hoặc tạo tài khoản</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-login" data-bs-toggle="pill"
+                                data-bs-target="#pane-login" type="button" role="tab">
+                                Đăng nhập
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-register" data-bs-toggle="pill"
+                                data-bs-target="#pane-register" type="button" role="tab">
+                                Đăng ký
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div id="alertContainer"></div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="pane-login" role="tabpanel">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Mật khẩu</label>
+                                    <input type="password" class="form-control" id="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                                <div class="text-center small text-muted mt-2">
+                                    Chưa có tài khoản? <a href="#" id="goRegister">Đăng ký</a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="pane-register" role="tabpanel">
+                            <form id="registerForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Bạn muốn đăng ký</label>
+                                    <select class="form-select" id="registerType" required>
+                                        <option value="CUSTOMER" selected>Thành viên (CUSTOMER)</option>
+                                        <option value="STAFF">Nhân viên (STAFF)</option>
+                                    </select>
+                                    <div class="form-text">
+                                        Thành viên sẽ có MemberLevel mặc định (SILVER). Nhân viên không có MemberLevel.
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="regFullName" class="form-label">Họ và tên</label>
+                                    <input type="text" class="form-control" id="regFullName" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="regUsername" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="regUsername" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="regEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="regEmail" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="regPassword" class="form-label">Mật khẩu</label>
+                                    <input type="password" class="form-control" id="regPassword" minlength="6" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="regPhone" class="form-label">Số điện thoại (tuỳ chọn)</label>
+                                    <input type="text" class="form-control" id="regPhone">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="regAddress" class="form-label">Địa chỉ (tuỳ chọn)</label>
+                                    <input type="text" class="form-control" id="regAddress">
+                                </div>
+
+                                <button type="submit" class="btn btn-success w-100">Tạo tài khoản</button>
+                                <div class="text-center small text-muted mt-2">
+                                    Đã có tài khoản? <a href="#" id="goLogin">Đăng nhập</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Benefits Modal -->
+    <div class="modal fade" id="memberBenefitsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Quyền lợi thành viên</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <div id="modalMemberBadge" class="badge rounded-pill fs-5 mb-2 px-4 py-2">Silver</div>
+                        <h4 id="modalMemberName" class="fw-bold mb-1">Nguyễn Văn A</h4>
+                        <p class="text-muted small" id="modalMemberEmail">email@example.com</p>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Mức giảm giá hiện tại</h6>
+                            <h2 class="display-4 fw-bold text-primary mb-0" id="modalDiscountPercent">0%</h2>
+                            <p class="text-muted small mt-2 mb-0">Áp dụng cho mọi đơn hàng dịch vụ</p>
+                        </div>
+                    </div>
+
+                    <div class="text-start">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3">Bảng hạng thành viên</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><span class="badge bg-secondary">Bạc</span> (Mặc định)</span>
+                            <span class="fw-bold">0%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><span class="badge bg-warning text-dark">Vàng</span> (Chi tiêu &ge; 5tr HOẶC &ge; 6
+                                đơn)</span>
+                            <span class="fw-bold">5%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-info text-white">Kim Cương</span> (Chi tiêu &ge; 15tr HOẶC &ge;
+                                15 đơn)</span>
+                            <span class="fw-bold">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>

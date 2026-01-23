@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng - PCLEAR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm py-2">
+        <div class="container">
+            <a class="navbar-brand py-0" href="../index.html">
+                <img src="../images/logo/logo.png" alt="PCLEAR" class="navbar-logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../services.html">Dịch vụ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../about.html">Giới thiệu</a>
+                    </li>
+                    <li class="nav-item member-nav">
+                        <a class="nav-link" href="#" id="userProfileLink" data-bs-toggle="modal"
+                            data-bs-target="#memberBenefitsModal">
+                            <span id="headerUserName" class="fw-bold">User</span>
+                            <span id="headerMemberBadge" class="badge bg-secondary ms-1">Silver</span>
+                        </a>
+                    </li>
+                    <li class="nav-item member-nav">
+                        <a class="nav-link active" href="orders.html">Đơn hàng</a>
+                    </li>
+                    <li class="nav-item member-nav">
+                        <a class="nav-link" href="#" id="logoutLink">Đăng xuất</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                    <div>
+                        <a href="orders.html" class="btn btn-outline-secondary btn-sm mb-2 rounded-pill px-3">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+                        </a>
+                        <h2 class="mb-1">Chi tiết đơn hàng</h2>
+                        <div class="text-muted small" id="orderCode">Loading...</div>
+                    </div>
+                    <div id="orderActions"></div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Order Info -->
+                    <div class="col-12 col-lg-8">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 fw-bold text-primary">Thông tin đơn hàng</h5>
+                            </div>
+                            <div class="card-body" id="orderInfo">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service Info -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 fw-bold">Dịch vụ đã đặt</h5>
+                            </div>
+                            <div class="card-body" id="serviceInfo"></div>
+                        </div>
+
+                        <!-- Progress Timeline -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 fw-bold">Tiến độ thực hiện</h5>
+                            </div>
+                            <div class="card-body" id="progressTimeline"></div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-12 col-lg-4">
+                        <!-- Status Card -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 fw-bold">Trạng thái</h5>
+                            </div>
+                            <div class="card-body" id="statusCard"></div>
+                        </div>
+
+                        <!-- Payment Summary -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 fw-bold">Thanh toán</h5>
+                            </div>
+                            <div class="card-body" id="paymentSummary"></div>
+                        </div>
+
+                        <!-- Staff Info (Simple) -->
+                        <div class="card shadow-sm mb-4 d-none" id="staffCard">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0 fw-bold">Nhân viên phụ trách</h5>
+                            </div>
+                            <div class="card-body" id="staffInfo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light pt-5 pb-3 mt-5">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold text-white mb-3">
+                        <img src="../images/logo/logo.png" alt="PCLEAR"
+                            style="height: 30px; filter: brightness(0) invert(1);"> PCLEAR
+                    </h5>
+                    <p class="text-white-50 small">Đơn vị cung cấp dịch vụ vệ sinh văn phòng chuyên nghiệp hàng đầu.</p>
+                </div>
+                <!-- Simplified footer for inner page -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Liên hệ</h6>
+                    <ul class="list-unstyled small text-white-50">
+                        <li class="mb-2">📍 123 Nguyễn Trãi, Thanh Xuân, Hà Nội</li>
+                        <li class="mb-2">📞 Hotline/Zalo: 0336.350.933</li>
+                        <li class="mb-2">✉️ toiduaroima@gmail.com</li>
+                        <li class="mb-2">🌐 <a href="https://www.facebook.com/phuc.trinh.3557440"
+                                class="text-white-50 text-decoration-none hover-white" target="_blank">Facebook: Phuc
+                                Trinh</a></li>
+                        <li class="mb-2">⏰ 8:00 - 18:00 (T2 - CN)</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary opacity-25">
+            <div class="text-center text-white-50 small">
+                <p class="mb-0">&copy; 2026 PCLEAR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cancel Order Modal -->
+    <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Hủy đơn dịch vụ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning d-flex align-items-centerr gap-2 small">
+                        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                        <div>
+                            Bạn có chắc chắn muốn hủy đơn dịch vụ này không? Hành động này không thể hoàn tác.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label small fw-bold">Lý do hủy đơn <span
+                                class="text-danger">*</span></label>
+                        <select class="form-select" id="cancelReason">
+                            <option value="" selected disabled>Chọn lý do hủy...</option>
+                            <option value="Đặt nhầm dịch vụ">Đặt nhầm dịch vụ</option>
+                            <option value="Thay đổi kế hoạch">Thay đổi kế hoạch</option>
+                            <option value="Muốn đổi ngày thực hiện">Muốn đổi ngày thực hiện</option>
+                            <option value="Tìm được nơi khác">Tìm được nơi khác</option>
+                            <option value="Khác">Lý do khác</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 d-none" id="otherReasonGroup">
+                        <label for="cancelComment" class="form-label small fw-bold">Ghi chú thêm</label>
+                        <textarea class="form-control" id="cancelComment" rows="3"
+                            placeholder="Vui lòng cho biết thêm chi tiết..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmCancelBtn"
+                        onclick="confirmCancelOrder()">
+                        Xác nhận hủy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Support Modal -->
+    <div class="modal fade" id="contactSupportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-body text-center p-4">
+                    <div class="mb-3 text-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor"
+                            class="bi bi-clock-history" viewBox="0 0 16 16">
+                            <path
+                                d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123c-.035.215-.077.426-.126.632l-.948-.245zM10 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+                            <path
+                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                        </svg>
+                    </div>
+                    <h5 class="fw-bold mb-3">Đã gửi yêu cầu hủy</h5>
+                    <p class="text-muted small mb-4">
+                        Do đơn hàng đã được xác nhận, yêu cầu của bạn cần được Admin duyệt.<br>
+                        Vui lòng liên hệ trực tiếp để được hỗ trợ nhanh nhất:
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <a href="https://zalo.me/0336350933" target="_blank"
+                            class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                viewBox="0 0 50 50">
+                                <path
+                                    d="M37.7 26.3c0-1.7-1.4-3.1-3.1-3.1h-4.3c-1.7 0-3.1 1.4-3.1 3.1v1.9c0 .4.3.7.7.7h2.8v3.2l2.9-2.2c.2-.2.5-.2.7-.2h.3c1.7 0 3.1-1.4 3.1-3.1v-.3z"
+                                    fill="#0068ff" />
+                                <path d="M48 24c0-13.3-10.7-24-24-24S0 10.7 0 24s10.7 24 24 24 24-10.7 24-24z"
+                                    fill="none" stroke="#0068ff" stroke-width="2" />
+                            </svg>
+                            Chat qua Zalo (0336.350.933)
+                        </a>
+                        <a href="tel:0336350933"
+                            class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-telephone-fill"></i>
+                            Gọi Hotline: 0336.350.933
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn btn-link text-muted btn-sm mt-3 text-decoration-none"
+                        data-bs-dismiss="modal" onclick="loadOrderDetail()">
+                        Đóng và kiểm tra lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Member Benefits Modal -->
+    <div class="modal fade" id="memberBenefitsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Quyền lợi thành viên</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <div id="modalMemberBadge" class="badge rounded-pill fs-5 mb-2 px-4 py-2">Silver</div>
+                        <h4 id="modalMemberName" class="fw-bold mb-1">Nguyễn Văn A</h4>
+                        <p class="text-muted small" id="modalMemberEmail">email@example.com</p>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Mức giảm giá hiện tại</h6>
+                            <h2 class="display-4 fw-bold text-primary mb-0" id="modalDiscountPercent">0%</h2>
+                            <p class="text-muted small mt-2 mb-0">Áp dụng cho mọi đơn hàng dịch vụ</p>
+                        </div>
+                    </div>
+
+                    <div class="text-start">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3">Bảng hạng thành viên</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><span class="badge bg-secondary">Bạc</span> (Mặc định)</span>
+                            <span class="fw-bold">0%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><span class="badge bg-warning text-dark">Vàng</span> (> 5tr)</span>
+                            <span class="fw-bold">5%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-info text-white">Kim Cương</span> (> 15tr)</span>
+                            <span class="fw-bold">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="js/order-detail.js"></script>
+</body>
+
+</html>

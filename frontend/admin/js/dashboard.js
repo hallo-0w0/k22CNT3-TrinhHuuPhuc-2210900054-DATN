@@ -82,6 +82,22 @@ document.addEventListener('DOMContentLoaded', function () {
     if (orderStatusFilter) {
         orderStatusFilter.addEventListener('change', () => loadOrders());
     }
+
+    // Search Event Listeners
+    const serviceSearch = document.getElementById('serviceSearch');
+    if (serviceSearch) serviceSearch.addEventListener('input', () => loadServices());
+
+    const categorySearch = document.getElementById('categorySearch');
+    if (categorySearch) categorySearch.addEventListener('input', () => loadCategories());
+
+    const userSearch = document.getElementById('userSearch');
+    if (userSearch) userSearch.addEventListener('input', () => loadUsers());
+
+    const staffSearch = document.getElementById('staffSearch');
+    if (staffSearch) staffSearch.addEventListener('input', () => loadStaff());
+
+    const contentSearch = document.getElementById('contentSearch');
+    if (contentSearch) contentSearch.addEventListener('input', () => loadContent());
 });
 
 // ==================== TAB MANAGEMENT ====================
@@ -149,6 +165,9 @@ async function loadDashboardStats() {
         if (document.getElementById('statPendingOrders')) {
             document.getElementById('statPendingOrders').textContent = stats.pending_orders || 0;
         }
+
+        // Load charts
+        loadCharts();
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
         const errorMsg = error.message || 'Không thể tải thống kê';
@@ -159,6 +178,179 @@ async function loadDashboardStats() {
         if (document.getElementById('statTotalRevenue')) document.getElementById('statTotalRevenue').textContent = '—';
         if (document.getElementById('statPendingOrders')) document.getElementById('statPendingOrders').textContent = '—';
     }
+}
+
+// ==================== CHARTS ====================
+let revenueChartInstance = null;
+let orderStatusChartInstance = null;
+
+async function loadCharts() {
+    try {
+        const orders = await API.getOrders();
+
+        if (!orders || !Array.isArray(orders)) {
+            console.warn('No orders data for charts');
+            return;
+        }
+
+        renderRevenueChart(orders);
+        renderOrderStatusChart(orders);
+    } catch (error) {
+        console.error('Error loading charts:', error);
+    }
+}
+
+function renderRevenueChart(orders) {
+    const ctx = document.getElementById('revenueChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if any
+    if (revenueChartInstance) {
+        revenueChartInstance.destroy();
+    }
+
+    // Process data: Group by date (Last 7 days)
+    const dailyRevenue = {};
+    const today = new Date();
+    const last7Days = [];
+
+    // Initialize last 7 days with 0
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+        dailyRevenue[dateStr] = 0;
+        last7Days.push(dateStr);
+    }
+
+    // Sum revenue
+    orders.forEach(order => {
+        if (!order.order_date) return;
+        const dateStr = order.order_date.split('T')[0];
+        if (dailyRevenue.hasOwnProperty(dateStr) && order.status.status_code !== 'CANCELLED') {
+            dailyRevenue[dateStr] += (order.total_amount || 0);
+        }
+    });
+
+    const labels = last7Days.map(dateStr => {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}`;
+    });
+    const data = last7Days.map(dateStr => dailyRevenue[dateStr]);
+
+    revenueChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Doanh thu (VND)',
+                data: data,
+                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                borderColor: 'rgba(13, 110, 253, 1)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            if (value >= 1000000) return (value / 1000000) + 'M';
+                            if (value >= 1000) return (value / 1000) + 'k';
+                            return value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderOrderStatusChart(orders) {
+    const ctx = document.getElementById('orderStatusChart');
+    if (!ctx) return;
+
+    if (orderStatusChartInstance) {
+        orderStatusChartInstance.destroy();
+    }
+
+    // Count by status
+    const statusCounts = {
+        'PENDING': 0,
+        'CONFIRMED': 0,
+        'IN_PROGRESS': 0,
+        'COMPLETED': 0,
+        'CANCELLED': 0
+    };
+
+    orders.forEach(order => {
+        const code = order.status ? order.status.status_code : 'UNKNOWN';
+        if (statusCounts.hasOwnProperty(code)) {
+            statusCounts[code]++;
+        }
+    });
+
+    const data = [
+        statusCounts['PENDING'],
+        statusCounts['CONFIRMED'],
+        statusCounts['IN_PROGRESS'],
+        statusCounts['COMPLETED'],
+        statusCounts['CANCELLED']
+    ];
+
+    orderStatusChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Chờ xử lý', 'Đã xác nhận', 'Đang thực hiện', 'Hoàn thành', 'Đã hủy'],
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#ffc107', // PENDING - Warning
+                    '#0d6efd', // CONFIRMED - Primary
+                    '#0dcaf0', // IN_PROGRESS - Info
+                    '#198754', // COMPLETED - Success
+                    '#dc3545'  // CANCELLED - Danger
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15
+                    }
+                }
+            }
+        }
+    });
 }
 
 // ==================== ORDERS ====================
@@ -278,11 +470,12 @@ function getOrderActionButtons(order) {
 
     if (status === 'PENDING') {
         buttons += `<button class="btn btn-success" onclick="updateOrderStatus(${order.order_id}, 'CONFIRMED')">✓ Xác nhận</button>`;
-        buttons += `<button class="btn btn-info" onclick="showAssignStaffModal(${order.order_id})">👨‍💼 Phân công</button>`;
     } else if (status === 'CONFIRMED') {
         buttons += `<button class="btn btn-primary" onclick="updateOrderStatus(${order.order_id}, 'IN_PROGRESS')">▶ Bắt đầu</button>`;
+        buttons += `<button class="btn btn-info" onclick="showAssignStaffModal(${order.order_id}, '${status}')">👨‍💼 Phân công</button>`;
     } else if (status === 'IN_PROGRESS') {
         buttons += `<button class="btn btn-success" onclick="updateOrderStatus(${order.order_id}, 'COMPLETED')">✓ Hoàn thành</button>`;
+        buttons += `<button class="btn btn-info" onclick="showAssignStaffModal(${order.order_id}, '${status}')">➕ Thêm hỗ trợ</button>`;
     }
 
     if (status !== 'COMPLETED' && status !== 'CANCELLED') {
@@ -311,6 +504,20 @@ function viewOrder(orderId) {
 }
 
 // ==================== SERVICES ====================
+function applyServiceFilters(services) {
+    if (!Array.isArray(services)) return [];
+
+    const keyword = (document.getElementById('serviceSearch')?.value || '').toLowerCase().trim();
+
+    if (!keyword) return services;
+
+    return services.filter(s => {
+        const name = (s.service_name || '').toLowerCase();
+        const category = (s.category?.category_name || '').toLowerCase();
+        return name.includes(keyword) || category.includes(keyword);
+    });
+}
+
 async function loadServices() {
     try {
         const services = await API.adminGetServices();
@@ -320,7 +527,8 @@ async function loadServices() {
             throw new Error('Dữ liệu dịch vụ không hợp lệ');
         }
 
-        displayServices(services);
+        const filtered = applyServiceFilters(services);
+        displayServices(filtered);
     } catch (error) {
         console.error('Error loading services:', error);
         const container = document.getElementById('servicesTable');
@@ -501,6 +709,20 @@ async function deleteService(serviceId) {
 }
 
 // ==================== CATEGORIES ====================
+function applyCategoryFilters(categories) {
+    if (!Array.isArray(categories)) return [];
+
+    const keyword = (document.getElementById('categorySearch')?.value || '').toLowerCase().trim();
+
+    if (!keyword) return categories;
+
+    return categories.filter(c => {
+        const name = (c.category_name || '').toLowerCase();
+        const desc = (c.category_description || '').toLowerCase();
+        return name.includes(keyword) || desc.includes(keyword);
+    });
+}
+
 async function loadCategories() {
     try {
         categories = await API.adminGetCategories();
@@ -510,7 +732,8 @@ async function loadCategories() {
             throw new Error('Dữ liệu danh mục không hợp lệ');
         }
 
-        displayCategories(categories);
+        const filtered = applyCategoryFilters(categories);
+        displayCategories(filtered);
     } catch (error) {
         console.error('Error loading categories:', error);
         const container = document.getElementById('categoriesTable');
@@ -664,6 +887,26 @@ async function deleteCategory(categoryId) {
 }
 
 // ==================== USERS ====================
+function applyUserFilters(users) {
+    if (!Array.isArray(users)) return [];
+
+    const keyword = (document.getElementById('userSearch')?.value || '').toLowerCase().trim();
+
+    if (!keyword) return users;
+
+    return users.filter(u => {
+        const name = (u.full_name || '').toLowerCase();
+        const email = (u.email || '').toLowerCase();
+        const username = (u.username || '').toLowerCase();
+        const phone = (u.phone_number || '');
+
+        return name.includes(keyword) ||
+            email.includes(keyword) ||
+            username.includes(keyword) ||
+            phone.includes(keyword);
+    });
+}
+
 async function loadUsers() {
     try {
         const roleFilter = document.getElementById('userRoleFilter')?.value || '';
@@ -674,7 +917,8 @@ async function loadUsers() {
             throw new Error('Dữ liệu người dùng không hợp lệ');
         }
 
-        displayUsers(users);
+        const filtered = applyUserFilters(users);
+        displayUsers(filtered);
     } catch (error) {
         console.error('Error loading users:', error);
         const container = document.getElementById('usersTable');
@@ -750,9 +994,31 @@ function displayUsers(users) {
     container.innerHTML = table;
 }
 
-function viewUser(userId) {
-    // TODO: Implement user detail view
-    alert('Xem chi tiết user ID: ' + userId);
+async function viewUser(userId) {
+    try {
+        const user = await API.adminGetUser(userId);
+
+        document.getElementById('detailFullName').textContent = user.full_name || '—';
+        document.getElementById('detailEmail').textContent = user.email || '—';
+        document.getElementById('detailUsername').textContent = user.username || '—';
+        document.getElementById('detailPhone').textContent = user.phone_number || '—';
+        document.getElementById('detailAddress').textContent = user.address || '—';
+        document.getElementById('detailRole').innerHTML = `<span class="badge bg-info">${user.role_name}</span>`;
+
+        const memberLevel = user.member_level ? user.member_level.level_name : '—';
+        document.getElementById('detailMemberLevel').textContent = memberLevel;
+
+        const isActive = user.is_active !== false;
+        const isLocked = user.is_locked === true;
+        const statusText = isActive && !isLocked ? 'Hoạt động' : (isLocked ? 'Đang bị khóa' : 'Tạm khóa');
+        const statusClass = isActive && !isLocked ? 'success' : 'danger';
+        document.getElementById('detailStatus').innerHTML = `<span class="badge bg-${statusClass}">${statusText}</span>`;
+
+        new bootstrap.Modal(document.getElementById('userModal')).show();
+    } catch (error) {
+        console.error('Error viewing user:', error);
+        showAlert('Không thể tải thông tin chi tiết: ' + error.message, 'danger');
+    }
 }
 
 async function toggleUserLock(userId, lock) {
@@ -771,6 +1037,26 @@ async function toggleUserLock(userId, lock) {
 }
 
 // ==================== STAFF ====================
+function applyStaffFilters(staffList) {
+    if (!Array.isArray(staffList)) return [];
+
+    const keyword = (document.getElementById('staffSearch')?.value || '').toLowerCase().trim();
+
+    if (!keyword) return staffList;
+
+    return staffList.filter(s => {
+        const name = (s.full_name || '').toLowerCase();
+        const email = (s.email || '').toLowerCase();
+        const username = (s.username || '').toLowerCase();
+        const phone = (s.phone_number || '');
+
+        return name.includes(keyword) ||
+            email.includes(keyword) ||
+            username.includes(keyword) ||
+            phone.includes(keyword);
+    });
+}
+
 async function loadStaff() {
     try {
         staff = await API.adminGetStaff();
@@ -780,7 +1066,8 @@ async function loadStaff() {
             throw new Error('Dữ liệu nhân viên không hợp lệ');
         }
 
-        displayStaff(staff);
+        const filtered = applyStaffFilters(staff);
+        displayStaff(filtered);
     } catch (error) {
         console.error('Error loading staff:', error);
         const container = document.getElementById('staffTable');
@@ -832,9 +1119,18 @@ function displayStaff(staff) {
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="viewUser(${s.user_id})">
-                                    👁️ Xem
-                                </button>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-primary" onclick="viewStaff(${s.user_id})">
+                                        👁️ Xem
+                                    </button>
+                                    <button class="btn btn-${isLocked ? 'success' : 'warning'}" 
+                                            onclick="toggleStaffLock(${s.user_id}, ${!isLocked})">
+                                        ${isLocked ? '🔓 Mở' : '🔒 Khóa'}
+                                    </button>
+                                    <button class="btn btn-danger" onclick="deleteStaff(${s.user_id})">
+                                        🗑️ Xóa
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -847,7 +1143,56 @@ function displayStaff(staff) {
     container.innerHTML = table;
 }
 
+function viewStaff(staffId) {
+    // Reuse viewUser for now as Staff are Users
+    // alert('Xem chi tiết staff ID: ' + staffId);
+    viewUser(staffId);
+}
+
+async function toggleStaffLock(staffId, lock) {
+    const action = lock ? 'khóa' : 'mở khóa';
+    if (!confirm(`Bạn có chắc muốn ${action} nhân viên này?`)) {
+        return;
+    }
+
+    try {
+        await API.adminUpdateUserStatus(staffId, { is_locked: lock });
+        showAlert(`${action.charAt(0).toUpperCase() + action.slice(1)} tài khoản thành công!`, 'success');
+        loadStaff();
+    } catch (error) {
+        showAlert('Lỗi: ' + error.message, 'danger');
+    }
+}
+
+async function deleteStaff(staffId) {
+    if (!confirm('Bạn có chắc muốn xóa nhân viên này? Hành động này không thể hoàn tác.')) {
+        return;
+    }
+
+    try {
+        await API.adminDeleteUser(staffId);
+        showAlert('Xóa nhân viên thành công!', 'success');
+        loadStaff();
+    } catch (error) {
+        showAlert('Lỗi: ' + error.message, 'danger');
+    }
+}
+
 // ==================== CONTENT ====================
+function applyContentFilters(contents) {
+    if (!Array.isArray(contents)) return [];
+
+    const keyword = (document.getElementById('contentSearch')?.value || '').toLowerCase().trim();
+
+    if (!keyword) return contents;
+
+    return contents.filter(c => {
+        const title = (c.title || '').toLowerCase();
+        const type = (c.content_type || '').toLowerCase();
+        return title.includes(keyword) || type.includes(keyword);
+    });
+}
+
 async function loadContent() {
     try {
         const contentType = document.getElementById('contentTypeFilter')?.value || '';
@@ -858,7 +1203,8 @@ async function loadContent() {
             throw new Error('Dữ liệu nội dung không hợp lệ');
         }
 
-        displayContent(contents);
+        const filtered = applyContentFilters(contents);
+        displayContent(filtered);
     } catch (error) {
         console.error('Error loading content:', error);
         const container = document.getElementById('contentTable');
@@ -1016,9 +1362,26 @@ async function deleteContent(contentId) {
 }
 
 // ==================== ASSIGN STAFF ====================
-async function showAssignStaffModal(orderId) {
+async function showAssignStaffModal(orderId, status) {
     const modal = new bootstrap.Modal(document.getElementById('assignStaffModal'));
     document.getElementById('assignOrderId').value = orderId;
+
+    // Set title and notes based on status
+    const title = document.getElementById('assignModalTitle') || document.querySelector('#assignStaffModal .modal-title');
+    const notesInput = document.getElementById('assignNotes');
+
+    if (status === 'CONFIRMED') {
+        if (title) title.textContent = 'Phân công nhân viên chính';
+        if (notesInput) notesInput.value = 'Nhân viên chính';
+        if (notesInput) notesInput.placeholder = 'Nhân viên chính...';
+    } else if (status === 'IN_PROGRESS') {
+        if (title) title.textContent = 'Thêm nhân viên hỗ trợ';
+        if (notesInput) notesInput.value = 'Nhân viên hỗ trợ';
+        if (notesInput) notesInput.placeholder = 'Nhân viên hỗ trợ...';
+    } else {
+        if (title) title.textContent = 'Phân công nhân viên';
+        if (notesInput) notesInput.value = '';
+    }
 
     // Load staff list
     if (staff.length === 0) {

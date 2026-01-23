@@ -2,13 +2,13 @@
  * Customer Orders Page Script
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Check authentication và role
     if (!isAuthenticated() || getUserRole() !== 'CUSTOMER') {
         window.location.href = '../login.html';
         return;
     }
-    
+
     // Load orders
     loadOrders();
 
@@ -29,7 +29,7 @@ async function loadOrders() {
         displayOrders(filtered);
     } catch (error) {
         console.error('Error loading orders:', error);
-        document.getElementById('ordersList').innerHTML = 
+        document.getElementById('ordersList').innerHTML =
             '<div class="alert alert-danger">Không thể tải danh sách đơn hàng</div>';
     }
 }
@@ -50,7 +50,7 @@ function updateStats(orders) {
 
 function displayOrders(orders) {
     const container = document.getElementById('ordersList');
-    
+
     if (orders.length === 0) {
         container.innerHTML = `
             <div class="text-center py-5">
@@ -61,37 +61,88 @@ function displayOrders(orders) {
         `;
         return;
     }
-    
-    const html = orders.map(order => `
-        <div class="card mb-3">
+
+    const html = orders.map(order => {
+        const statusMap = {
+            'PENDING': 1,
+            'CONFIRMED': 2,
+            'IN_PROGRESS': 3,
+            'COMPLETED': 4
+        };
+        const currentStep = statusMap[order.status.status_code] || 0;
+        const isCancelled = order.status.status_code === 'CANCELLED';
+
+        // Timeline HTML
+        let timelineHtml = '';
+        if (!isCancelled) {
+            timelineHtml = `
+            <div class="position-relative m-3">
+                <div class="progress" style="height: 2px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: ${(currentStep - 1) * 33}%" ></div>
+                </div>
+                <div class="position-absolute top-0 start-0 translate-middle btn btn-sm btn-${currentStep >= 1 ? 'success' : 'secondary'} rounded-pill" style="width: 2rem; height:2rem; padding: 0.25rem 0;">1</div>
+                <div class="position-absolute top-0 start-50 translate-middle btn btn-sm btn-${currentStep >= 2 ? 'success' : 'secondary'} rounded-pill" style="width: 2rem; height:2rem; padding: 0.25rem 0; left: 33% !important">2</div>
+                <div class="position-absolute top-0 start-50 translate-middle btn btn-sm btn-${currentStep >= 3 ? 'success' : 'secondary'} rounded-pill" style="width: 2rem; height:2rem; padding: 0.25rem 0; left: 66% !important">3</div>
+                <div class="position-absolute top-0 start-100 translate-middle btn btn-sm btn-${currentStep >= 4 ? 'success' : 'secondary'} rounded-pill" style="width: 2rem; height:2rem; padding: 0.25rem 0;">4</div>
+                
+                <div class="position-relative mt-4 text-center" style="height: 20px; font-size: 0.75rem">
+                    <span class="position-absolute top-0 start-0 translate-middle-x ${currentStep >= 1 ? 'text-success fw-bold' : 'text-muted'}" style="width: max-content">Chờ xác nhận</span>
+                    <span class="position-absolute top-0 translate-middle-x ${currentStep >= 2 ? 'text-success fw-bold' : 'text-muted'}" style="left: 33%; width: max-content">Đã xác nhận</span>
+                    <span class="position-absolute top-0 translate-middle-x ${currentStep >= 3 ? 'text-success fw-bold' : 'text-muted'}" style="left: 66%; width: max-content">Đang làm</span>
+                    <span class="position-absolute top-0 start-100 translate-middle-x ${currentStep >= 4 ? 'text-success fw-bold' : 'text-muted'}" style="width: max-content">Hoàn thành</span>
+                </div>
+            </div>
+            `;
+        } else {
+            timelineHtml = `
+             <div class="alert alert-danger mb-0 d-flex align-items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                </svg>
+                Đơn hàng đã bị hủy
+             </div>
+             `;
+        }
+
+        return `
+        <div class="card mb-4 border-0 shadow-sm rounded-3 overflow-hidden">
+            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small">Mã đơn:</span>
+                    <span class="fw-bold">#${order.order_code}</span>
+                </div>
+                <span class="badge bg-${getStatusBadgeColor(order.status.status_code)} bg-opacity-10 text-${getStatusBadgeColor(order.status.status_code)} px-3 py-2 rounded-pill">
+                    ${order.status.status_name}
+                </span>
+            </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h5 class="card-title">${order.service ? order.service.service_name : 'N/A'}</h5>
-                        <p class="card-text">
-                            <strong>Mã đơn:</strong> ${order.order_code}<br>
-                            <strong>Ngày đặt:</strong> ${formatDate(order.order_date)}<br>
-                            <strong>Địa chỉ:</strong> ${order.service_address}
-                        </p>
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-7">
+                        <h5 class="fw-bold text-primary mb-1">${order.service ? order.service.service_name : 'Dịch vụ'}</h5>
+                        <div class="text-muted small mb-2"><i class="bi bi-geo-alt-fill"></i> Địa chỉ thực hiện: ${order.service_address}</div>
+                        <div class="text-muted small"><i class="bi bi-calendar-event"></i> Ngày đặt: ${formatDate(order.order_date)}</div>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <p class="card-text">
-                            <span class="badge bg-${getStatusBadgeColor(order.status.status_code)}">
-                                ${order.status.status_name}
-                            </span>
-                        </p>
-                        <p class="card-text">
-                            <strong class="text-primary">${formatCurrency(order.total_amount)}</strong>
-                        </p>
-                        <button class="btn btn-sm btn-primary" onclick="viewOrder(${order.order_id})">
-                            Xem chi tiết
-                        </button>
+                    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                        <div class="small text-muted">Tổng tiền</div>
+                        <div class="fs-4 fw-bold text-success">${formatCurrency(order.total_amount)}</div>
                     </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="mb-4 px-2">
+                    ${timelineHtml}
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                     <!-- Context buttons can go here -->
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-4" onclick="viewOrder(${order.order_id})">
+                        Xem chi tiết & Theo dõi
+                    </button>
                 </div>
             </div>
         </div>
-    `).join('');
-    
+    `}).join('');
+
     container.innerHTML = html;
 }
 

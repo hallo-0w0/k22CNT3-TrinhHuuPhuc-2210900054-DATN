@@ -72,7 +72,9 @@ class Order(db.Model):
             'status_id': self.status_id,
             'status': self.status.to_dict() if self.status else None,
             'priority': self.priority,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'assignments': [a.to_dict() for a in self.assignments] if self.assignments else [],
+            'status_history': [h.to_dict() for h in self.status_history] if self.status_history else []
         }
 
 class OrderAssignment(db.Model):

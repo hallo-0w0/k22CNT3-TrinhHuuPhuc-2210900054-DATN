@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,49 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="../index.html">🧹 PCLEAR</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="orders.html">Đơn hàng</a>
-                <a class="nav-link" href="#" id="logoutLink">Đăng xuất</a>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm py-2">
+        <div class="container">
+            <a class="navbar-brand py-0" href="../index.html">
+                <img src="../images/logo/logo.png" alt="PCLEAR" class="navbar-logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Chung cho tất cả -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../services.html">Dịch vụ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../about.html">Giới thiệu</a>
+                    </li>
+
+                    <!-- Menu cho Khách (Chưa đăng nhập) -->
+                    <li class="nav-item" id="guestNav">
+                        <a class="nav-link" href="../index.html#auth">Đăng nhập</a>
+                    </li>
+
+                    <!-- Menu cho Thành viên (Đã đăng nhập) -->
+                    <li class="nav-item member-nav d-none">
+                        <a class="nav-link" href="#" id="userProfileLink" data-bs-toggle="modal"
+                            data-bs-target="#memberBenefitsModal">
+                            <span id="headerUserName" class="fw-bold">User</span>
+                            <span id="headerMemberBadge" class="badge bg-secondary ms-1">Silver</span>
+                        </a>
+                    </li>
+                    <li class="nav-item member-nav d-none">
+                        <a class="nav-link active" href="orders.html">Đơn hàng</a>
+                    </li>
+                    <li class="nav-item member-nav d-none">
+                        <a class="nav-link" href="#" id="logoutLink">Đăng xuất</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -77,9 +114,114 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-dark text-light pt-5 pb-3 mt-5">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold text-white mb-3">
+                        <img src="../images/logo/logo.png" alt="PCLEAR"
+                            style="height: 30px; filter: brightness(0) invert(1);"> PCLEAR
+                    </h5>
+                    <p class="text-white-50 small">Đơn vị cung cấp dịch vụ vệ sinh văn phòng chuyên nghiệp hàng đầu.
+                        Chúng tôi mang đến giải pháp làm sạch toàn diện, an toàn và hiệu quả cho doanh nghiệp của bạn.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Liên kết</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="../index.html"
+                                class="text-white-50 text-decoration-none hover-white">Trang chủ</a></li>
+                        <li class="mb-2"><a href="../services.html"
+                                class="text-white-50 text-decoration-none hover-white">Dịch vụ</a></li>
+                        <li class="mb-2"><a href="../about.html"
+                                class="text-white-50 text-decoration-none hover-white">Giới thiệu</a></li>
+                        <li class="mb-2"><a href="../index.html#auth"
+                                class="text-white-50 text-decoration-none hover-white">Đăng nhập</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Dịch vụ</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="../services.html"
+                                class="text-white-50 text-decoration-none hover-white">Vệ sinh văn phòng</a></li>
+                        <li class="mb-2"><a href="../services.html"
+                                class="text-white-50 text-decoration-none hover-white">Vệ sinh công nghiệp</a></li>
+                        <li class="mb-2"><a href="../services.html"
+                                class="text-white-50 text-decoration-none hover-white">Giặt thảm & ghế</a></li>
+                        <li class="mb-2"><a href="../services.html"
+                                class="text-white-50 text-decoration-none hover-white">Phun khử khuẩn</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3">Liên hệ</h6>
+                    <ul class="list-unstyled small text-white-50">
+                        <li class="mb-2">📍 123 Nguyễn Trãi, Thanh Xuân, Hà Nội</li>
+                        <li class="mb-2">📞 Hotline/Zalo: 0336.350.933</li>
+                        <li class="mb-2">✉️ toiduaroima@gmail.com</li>
+                        <li class="mb-2">🌐 <a href="https://www.facebook.com/phuc.trinh.3557440"
+                                class="text-white-50 text-decoration-none hover-white" target="_blank">Facebook: Phuc
+                                Trinh</a></li>
+                        <li class="mb-2">⏰ 8:00 - 18:00 (T2 - CN)</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary opacity-25">
+            <div class="text-center text-white-50 small">
+                <p class="mb-0">&copy; 2026 PCLEAR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Member Benefits Modal -->
+    <div class="modal fade" id="memberBenefitsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Quyền lợi thành viên</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <div id="modalMemberBadge" class="badge rounded-pill fs-5 mb-2 px-4 py-2">Silver</div>
+                        <h4 id="modalMemberName" class="fw-bold mb-1">Nguyễn Văn A</h4>
+                        <p class="text-muted small" id="modalMemberEmail">email@example.com</p>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Mức giảm giá hiện tại</h6>
+                            <h2 class="display-4 fw-bold text-primary mb-0" id="modalDiscountPercent">0%</h2>
+                            <p class="text-muted small mt-2 mb-0">Áp dụng cho mọi đơn hàng dịch vụ</p>
+                        </div>
+                    </div>
+
+                    <div class="text-start">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3">Bảng hạng thành viên</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><span class="badge bg-secondary">Bạc</span> (Mặc định)</span>
+                            <span class="fw-bold">0%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><span class="badge bg-warning text-dark">Vàng</span> (Chi tiêu &ge; 5tr HOẶC &ge; 6
+                                đơn)</span>
+                            <span class="fw-bold">5%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-info text-white">Kim Cương</span> (Chi tiêu &ge; 15tr HOẶC &ge;
+                                15 đơn)</span>
+                            <span class="fw-bold">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="js/orders.js"></script>
 </body>
+
 </html>

@@ -42,9 +42,25 @@ def check_member_level_upgrade(customer_id):
         
         new_level = None
         for level in member_levels:
-            if (level.min_total_amount and total_spent >= float(level.min_total_amount)) and \
-               (level.min_service_count and service_count >= level.min_service_count) and \
-               (level.min_continuous_months and continuous_months >= level.min_continuous_months):
+            # Điều kiện 1: Đạt doanh số
+            is_qualified = True
+            
+            if level.min_total_amount is not None:
+                if total_spent < float(level.min_total_amount):
+                    is_qualified = False
+
+            # Điều kiện 2: Đạt số lượng
+            if level.min_service_count is not None:
+                if service_count < level.min_service_count:
+                    is_qualified = False
+                    
+            # Điều kiện 3: Đạt thời gian (Độ trung thành)
+            if level.min_continuous_months is not None:
+                if continuous_months < level.min_continuous_months:
+                     is_qualified = False
+            
+            # Nếu đạt TẤT CẢ điều kiện thì được xét duyệt cấp độ này
+            if is_qualified:
                 new_level = level
         
         # Nâng cấp nếu đủ điều kiện
@@ -67,7 +83,7 @@ def get_orders():
         
         # Filter theo role
         if user.role.role_name == 'CUSTOMER':
-            query = query.filter_by(customer_id=user_id)
+            query = query.filter_by(customer_id=user.user_id)
         elif user.role.role_name == 'STAFF':
             # Lấy các đơn được phân công cho staff này
             from backend.models.order import OrderAssignment
@@ -166,12 +182,84 @@ def get_order(order_id):
         order = Order.query.get_or_404(order_id)
         
         # Kiểm tra quyền truy cập
-        if user.role.role_name == 'CUSTOMER' and order.customer_id != user_id:
+        if user.role.role_name == 'CUSTOMER' and order.customer_id != user.user_id:
             return jsonify({'error': 'Không có quyền truy cập'}), 403
         
         return jsonify(order.to_dict()), 200
         
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@orders_bp.route('/<int:order_id>/cancel', methods=['POST'])
+@jwt_required()
+def cancel_order(order_id):
+    """Hủy đơn hàng (CUSTOMER only)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        # Chỉ Customer mới dùng API này
+        if user.role.role_name != 'CUSTOMER':
+             return jsonify({'error': 'API này dành cho khách hàng'}), 403
+
+        order = Order.query.get_or_404(order_id)
+        
+        # Check ownership
+        if order.customer_id != user.user_id:
+            return jsonify({'error': 'Không có quyền truy cập'}), 403
+
+        # Check status allowlist (PENDING, CONFIRMED)
+        allow_cancel_statuses = ['PENDING', 'CONFIRMED']
+        if order.status.status_code not in allow_cancel_statuses:
+             return jsonify({'error': 'Đơn hàng không thể hủy ở trạng thái này'}), 400
+
+        data = request.get_json()
+        reason = data.get('reason', 'Khách hàng hủy')
+
+        # Xử lý theo từng trạng thái
+        if order.status.status_code == 'PENDING':
+            # PENDING -> Hủy ngay
+            cancelled_status = OrderStatus.query.filter_by(status_code='CANCELLED').first()
+            if not cancelled_status:
+                return jsonify({'error': 'Lỗi hệ thống: Trạng thái CANCELLED chưa được cấu hình'}), 500
+
+            # Save History
+            history = OrderStatusHistory(
+                order_id=order_id,
+                old_status_id=order.status_id,
+                new_status_id=cancelled_status.status_id,
+                changed_by=user_id,
+                change_reason=reason
+            )
+            db.session.add(history)
+
+            # Update Order
+            order.status_id = cancelled_status.status_id
+            order.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            return jsonify({'message': 'Đã hủy đơn hàng thành công', 'order': order.to_dict()}), 200
+
+        elif order.status.status_code == 'CONFIRMED':
+            # CONFIRMED -> Chỉ ghi log yêu cầu, không đổi status
+            history = OrderStatusHistory(
+                order_id=order_id,
+                old_status_id=order.status_id,
+                new_status_id=order.status_id, # Giữ nguyên status
+                changed_by=user_id,
+                change_reason=f"YÊU CẦU HỦY: {reason}"
+            )
+            db.session.add(history)
+            
+            db.session.commit()
+            return jsonify({
+                'message': 'Đã gửi yêu cầu hủy thành công. Vui lòng liên hệ Admin để xử lý.', 
+                'order': order.to_dict(),
+                'is_request_only': True
+            }), 200
+
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 @orders_bp.route('/<int:order_id>/status', methods=['PUT'])
@@ -210,6 +298,9 @@ def update_order_status(order_id):
         old_status_code = order.status.status_code
         order.status_id = new_status.status_id
         order.updated_at = datetime.utcnow()
+        
+        # Flush để đảm bảo query trong check_member_level_upgrade thấy được trạng thái mới
+        db.session.flush()
         
         # Nếu chuyển sang COMPLETED, kiểm tra nâng cấp member level
         if new_status.status_code == 'COMPLETED' and old_status_code != 'COMPLETED':
@@ -279,7 +370,7 @@ def get_progress(order_id):
         order = Order.query.get_or_404(order_id)
         
         # Kiểm tra quyền
-        if user.role.role_name == 'CUSTOMER' and order.customer_id != user_id:
+        if user.role.role_name == 'CUSTOMER' and order.customer_id != user.user_id:
             return jsonify({'error': 'Không có quyền truy cập'}), 403
         
         progress_records = OrderProgress.query.filter_by(order_id=order_id)\
