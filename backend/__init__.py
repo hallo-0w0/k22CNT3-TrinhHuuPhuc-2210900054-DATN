@@ -46,11 +46,13 @@ def create_app(config_class=Config):
     from backend.routes.orders import orders_bp
     from backend.routes.content import content_bp
     from backend.routes.admin import admin_bp
+    from backend.routes.staff import staff_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(services_bp, url_prefix='/api/services')
     app.register_blueprint(orders_bp, url_prefix='/api/orders')
     app.register_blueprint(content_bp, url_prefix='/api/content')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(staff_bp, url_prefix='/api/staff')
     
     return app

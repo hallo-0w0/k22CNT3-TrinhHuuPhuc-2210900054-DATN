@@ -308,5 +308,43 @@ const API = {
         return apiRequest(`/admin/content/${contentId}`, {
             method: 'DELETE'
         });
+    },
+
+    // ==================== Staff APIs ====================
+    // Lấy danh sách đơn được phân công
+    staffGetOrders: () => {
+        return apiRequest('/staff/orders');
+    },
+
+    // Xem chi tiết đơn
+    staffGetOrder: (orderId) => {
+        return apiRequest(`/staff/orders/${orderId}`);
+    },
+
+    // Nhận việc (CONFIRMED → IN_PROGRESS)
+    staffStartOrder: (orderId) => {
+        return apiRequest(`/staff/orders/${orderId}/start`, {
+            method: 'PUT'
+        });
+    },
+
+    // Cập nhật tiến độ
+    staffAddProgress: (orderId, progressData) => {
+        return apiRequest(`/staff/orders/${orderId}/progress`, {
+            method: 'POST',
+            body: JSON.stringify(progressData)
+        });
+    },
+
+    // Hoàn thành công việc (IN_PROGRESS → COMPLETED)
+    staffCompleteOrder: (orderId) => {
+        return apiRequest(`/staff/orders/${orderId}/complete`, {
+            method: 'PUT'
+        });
+    },
+
+    // Lấy lịch sử tiến độ
+    staffGetProgress: (orderId) => {
+        return apiRequest(`/staff/orders/${orderId}/progress`);
     }
 };

@@ -136,6 +136,9 @@ class OrderProgress(db.Model):
     issue_report = db.Column(db.NVARCHAR(1000))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Relationship
+    staff = db.relationship('User', foreign_keys=[staff_id], backref='progress_updates', lazy=True)
+    
     def get_image_urls(self):
         """Parse image_urls từ JSON string"""
         if self.image_urls:
