@@ -1,326 +1,291 @@
-"""
-Orders Routes - CRUD
-"""
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from models.order import Order
-from models.service import Service
-from models.user import User
-from models.order_status import OrderStatus
-from models.order_status_history import OrderStatusHistory
-from utils.decorators import roles_required
-from utils.helpers import create_activity_log, paginate_query, calculate_discount_price, calculate_member_level_priority
+from backend import db
+from backend.models.order import Order, OrderStatus, OrderProgress, OrderStatusHistory
+from backend.models.user import User, MemberLevel
+from backend.models.service import Service
 from datetime import datetime
+import uuid
 
 orders_bp = Blueprint('orders', __name__)
+
+def check_member_level_upgrade(customer_id):
+    """Kiểm tra và nâng cấp member level cho customer"""
+    try:
+        customer = User.query.get(customer_id)
+        if not customer or customer.role.role_name != 'CUSTOMER':
+            return
+        
+        # Tính toán từ bảng Orders
+        completed_orders = Order.query.filter_by(
+            customer_id=customer_id,
+            status_id=OrderStatus.query.filter_by(status_code='COMPLETED').first().status_id
+        ).all()
+        
+        service_count = len(completed_orders)
+        total_spent = sum(float(order.total_amount) for order in completed_orders)
+        
+        # Tính continuous_months (đơn giản: số tháng có đơn COMPLETED)
+        if completed_orders:
+            months = set()
+            for order in completed_orders:
+                if order.order_date:
+                    months.add((order.order_date.year, order.order_date.month))
+            continuous_months = len(months)
+        else:
+            continuous_months = 0
+        
+        # Kiểm tra điều kiện nâng cấp
+        member_levels = MemberLevel.query.filter_by(is_active=True).order_by(
+            MemberLevel.member_level_id
+        ).all()
+        
+        new_level = None
+        for level in member_levels:
+            if (level.min_total_amount and total_spent >= float(level.min_total_amount)) and \
+               (level.min_service_count and service_count >= level.min_service_count) and \
+               (level.min_continuous_months and continuous_months >= level.min_continuous_months):
+                new_level = level
+        
+        # Nâng cấp nếu đủ điều kiện
+        if new_level and (not customer.member_level_id or new_level.member_level_id > customer.member_level_id):
+            customer.member_level_id = new_level.member_level_id
+            db.session.commit()
+            
+    except Exception as e:
+        print(f"Error checking member level upgrade: {e}")
 
 @orders_bp.route('', methods=['GET'])
 @jwt_required()
 def get_orders():
-    """Lấy danh sách orders"""
+    """Lấy danh sách đơn hàng"""
     try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
-        
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 20, type=int)
-        status_id = request.args.get('status_id', type=int)
-        customer_id = request.args.get('customer_id', type=int)
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
         
         query = Order.query
         
-        # CUSTOMER chỉ xem đơn của mình
-        if current_user.is_customer():
-            query = query.filter_by(customer_id=current_user_id)
-        # STAFF chỉ xem đơn được phân công
-        elif current_user.is_staff():
-            from models.order_assignment import OrderAssignment
-            assigned_order_ids = db.session.query(OrderAssignment.order_id).filter_by(
-                staff_id=current_user_id,
-                is_active=True
-            ).subquery()
-            query = query.filter(Order.order_id.in_(db.session.query(assigned_order_ids.c.order_id)))
-        # ADMIN xem tất cả, có thể filter theo customer_id
+        # Filter theo role
+        if user.role.role_name == 'CUSTOMER':
+            query = query.filter_by(customer_id=user_id)
+        elif user.role.role_name == 'STAFF':
+            # Lấy các đơn được phân công cho staff này
+            from backend.models.order import OrderAssignment
+            assigned_order_ids = db.session.query(OrderAssignment.order_id)\
+                .filter_by(staff_id=user_id, is_active=True).all()
+            query = query.filter(Order.order_id.in_([oid[0] for oid in assigned_order_ids]))
+        # ADMIN xem tất cả
         
+        status_id = request.args.get('status_id', type=int)
         if status_id:
             query = query.filter_by(status_id=status_id)
         
-        if customer_id and current_user.is_admin():
-            query = query.filter_by(customer_id=customer_id)
+        orders = query.order_by(Order.created_at.desc()).all()
         
-        result = paginate_query(query.order_by(Order.priority.desc(), Order.order_date.desc()), page, per_page)
-        
-        return jsonify(result), 200
+        return jsonify([order.to_dict() for order in orders]), 200
         
     except Exception as e:
-        return jsonify({
-            'message': 'Lỗi lấy danh sách orders',
-            'error': str(e)
-        }), 500
-
-@orders_bp.route('/<int:order_id>', methods=['GET'])
-@jwt_required()
-def get_order(order_id):
-    """Lấy chi tiết order"""
-    try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
-        
-        order = Order.query.get_or_404(order_id)
-        
-        # Kiểm tra quyền
-        if current_user.is_customer() and order.customer_id != current_user_id:
-            return jsonify({
-                'message': 'Không có quyền xem đơn này',
-                'error': 'insufficient_permissions'
-            }), 403
-        
-        if current_user.is_staff():
-            from models.order_assignment import OrderAssignment
-            assignment = OrderAssignment.query.filter_by(
-                order_id=order_id,
-                staff_id=current_user_id,
-                is_active=True
-            ).first()
-            if not assignment and not current_user.is_admin():
-                return jsonify({
-                    'message': 'Không có quyền xem đơn này',
-                    'error': 'insufficient_permissions'
-                }), 403
-        
-        return jsonify({
-            'order': order.to_dict()
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            'message': 'Lỗi lấy thông tin order',
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
 
 @orders_bp.route('', methods=['POST'])
 @jwt_required()
-@roles_required('CUSTOMER')
 def create_order():
-    """Tạo order mới (CUSTOMER only)"""
+    """Tạo đơn hàng mới (CUSTOMER only)"""
     try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if user.role.role_name != 'CUSTOMER':
+            return jsonify({'error': 'Chỉ khách hàng mới có thể tạo đơn'}), 403
+        
         data = request.get_json()
         
-        required_fields = ['service_id', 'scheduled_date', 'service_address']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({
-                    'message': f'Thiếu trường {field}',
-                    'error': 'missing_field'
-                }), 400
+        # Validate
+        service_id = data.get('service_id')
+        scheduled_date = data.get('scheduled_date')
+        service_address = data.get('service_address')
+        quantity = data.get('quantity', 1)
         
-        # Check service exists
-        service = Service.query.get(data['service_id'])
-        if not service or not service.is_active:
-            return jsonify({
-                'message': 'Service không tồn tại hoặc không hoạt động',
-                'error': 'service_not_found'
-            }), 404
+        if not all([service_id, scheduled_date, service_address]):
+            return jsonify({'error': 'Thiếu thông tin bắt buộc'}), 400
         
-        # Calculate price với member level discount
+        # Lấy service
+        service = Service.query.get_or_404(service_id)
+        if not service.is_active:
+            return jsonify({'error': 'Dịch vụ không khả dụng'}), 400
+        
+        # Lấy member level và discount
+        discount_percentage = 0
+        if user.member_level:
+            discount_percentage = float(user.member_level.discount_percentage)
+        
+        # Tính toán giá
         unit_price = float(service.base_price)
-        quantity = float(data.get('quantity', 1))
-        discount_percentage, discount_amount, final_price = calculate_discount_price(
-            unit_price * quantity,
-            current_user.member_level
-        )
+        subtotal = unit_price * float(quantity)
+        discount_amount = subtotal * (discount_percentage / 100)
+        total_amount = subtotal - discount_amount
         
-        # Calculate priority
-        priority = calculate_member_level_priority(
-            current_user.member_level.level_code if current_user.member_level else 'SILVER'
-        )
+        # Tạo order code
+        order_code = f"ORD-{datetime.utcnow().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
         
-        # Create order
+        # Tạo order
         order = Order(
-            order_code=Order.generate_order_code(),
-            customer_id=current_user_id,
-            service_id=data['service_id'],
-            scheduled_date=datetime.fromisoformat(data['scheduled_date'].replace('Z', '+00:00')),
-            scheduled_time=datetime.strptime(data['scheduled_time'], '%H:%M:%S').time() if data.get('scheduled_time') else None,
-            service_address=data['service_address'],
+            order_code=order_code,
+            customer_id=user_id,
+            service_id=service_id,
+            scheduled_date=datetime.fromisoformat(scheduled_date.replace('Z', '+00:00')),
+            scheduled_time=datetime.strptime(data.get('scheduled_time', '09:00'), '%H:%M').time() if data.get('scheduled_time') else None,
+            service_address=service_address,
             quantity=quantity,
             unit_price=unit_price,
             discount_percentage=discount_percentage,
             discount_amount=discount_amount,
-            total_amount=final_price,
+            total_amount=total_amount,
             notes=data.get('notes'),
-            priority=priority
+            status_id=OrderStatus.query.filter_by(status_code='PENDING').first().status_id,
+            priority=user.member_level.member_level_id if user.member_level else 0
         )
         
         db.session.add(order)
         db.session.commit()
         
-        # Create status history
-        status_history = OrderStatusHistory(
-            order_id=order.order_id,
-            old_status_id=None,
-            new_status_id=order.status_id,
-            changed_by=current_user_id,
-            change_reason='Khách hàng tạo đơn'
-        )
-        db.session.add(status_history)
-        db.session.commit()
-        
-        # Activity log
-        create_activity_log(current_user_id, 'CREATE', 'Order', order.order_id, f'Tạo đơn: {order.order_code}')
-        
-        return jsonify({
-            'message': 'Tạo đơn thành công',
-            'order': order.to_dict()
-        }), 201
+        return jsonify(order.to_dict()), 201
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            'message': 'Lỗi tạo đơn',
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
 
-@orders_bp.route('/<int:order_id>', methods=['PUT'])
+@orders_bp.route('/<int:order_id>', methods=['GET'])
 @jwt_required()
-def update_order(order_id):
-    """Cập nhật order"""
+def get_order(order_id):
+    """Lấy chi tiết đơn hàng"""
     try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        order = Order.query.get_or_404(order_id)
+        
+        # Kiểm tra quyền truy cập
+        if user.role.role_name == 'CUSTOMER' and order.customer_id != user_id:
+            return jsonify({'error': 'Không có quyền truy cập'}), 403
+        
+        return jsonify(order.to_dict()), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@orders_bp.route('/<int:order_id>/status', methods=['PUT'])
+@jwt_required()
+def update_order_status(order_id):
+    """Cập nhật trạng thái đơn hàng (ADMIN/STAFF)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if user.role.role_name not in ['ADMIN', 'STAFF']:
+            return jsonify({'error': 'Không có quyền'}), 403
         
         order = Order.query.get_or_404(order_id)
         data = request.get_json()
+        status_code = data.get('status_code')
         
-        # Kiểm tra quyền
-        can_update = False
-        if current_user.is_admin():
-            can_update = True
-        elif current_user.is_customer() and order.customer_id == current_user_id:
-            # CUSTOMER chỉ có thể sửa đơn ở trạng thái PENDING
-            pending_status = OrderStatus.query.filter_by(status_code='PENDING').first()
-            if order.status_id == pending_status.status_id:
-                can_update = True
+        if not status_code:
+            return jsonify({'error': 'Thiếu status_code'}), 400
         
-        if not can_update:
-            return jsonify({
-                'message': 'Không có quyền sửa đơn này',
-                'error': 'insufficient_permissions'
-            }), 403
+        new_status = OrderStatus.query.filter_by(status_code=status_code).first()
+        if not new_status:
+            return jsonify({'error': 'Trạng thái không hợp lệ'}), 400
         
-        # Update fields
-        if 'scheduled_date' in data:
-            order.scheduled_date = datetime.fromisoformat(data['scheduled_date'].replace('Z', '+00:00'))
-        if 'scheduled_time' in data:
-            order.scheduled_time = datetime.strptime(data['scheduled_time'], '%H:%M:%S').time() if data['scheduled_time'] else None
-        if 'service_address' in data:
-            order.service_address = data['service_address']
-        if 'notes' in data:
-            order.notes = data.get('notes')
-        if 'quantity' in data:
-            order.quantity = data['quantity']
-            # Recalculate total
-            order.calculate_total()
+        # Lưu lịch sử
+        history = OrderStatusHistory(
+            order_id=order_id,
+            old_status_id=order.status_id,
+            new_status_id=new_status.status_id,
+            changed_by=user_id,
+            change_reason=data.get('reason')
+        )
+        db.session.add(history)
         
-        # Chỉ ADMIN mới được sửa status
-        if 'status_id' in data and current_user.is_admin():
-            new_status_id = data['status_id']
-            new_status = OrderStatus.query.get(new_status_id)
-            if not new_status:
-                return jsonify({
-                    'message': 'Status không tồn tại',
-                    'error': 'status_not_found'
-                }), 404
-            
-            # Create status history
-            status_history = OrderStatusHistory(
-                order_id=order.order_id,
-                old_status_id=order.status_id,
-                new_status_id=new_status_id,
-                changed_by=current_user_id,
-                change_reason=data.get('change_reason', 'Admin cập nhật trạng thái')
-            )
-            db.session.add(status_history)
-            order.status_id = new_status_id
+        # Cập nhật trạng thái
+        old_status_code = order.status.status_code
+        order.status_id = new_status.status_id
+        order.updated_at = datetime.utcnow()
+        
+        # Nếu chuyển sang COMPLETED, kiểm tra nâng cấp member level
+        if new_status.status_code == 'COMPLETED' and old_status_code != 'COMPLETED':
+            check_member_level_upgrade(order.customer_id)
         
         db.session.commit()
         
-        # Activity log
-        create_activity_log(current_user_id, 'UPDATE', 'Order', order.order_id, f'Cập nhật đơn: {order.order_code}')
-        
-        return jsonify({
-            'message': 'Cập nhật đơn thành công',
-            'order': order.to_dict()
-        }), 200
+        return jsonify(order.to_dict()), 200
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            'message': 'Lỗi cập nhật đơn',
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
 
-@orders_bp.route('/<int:order_id>', methods=['DELETE'])
+@orders_bp.route('/<int:order_id>/progress', methods=['POST'])
 @jwt_required()
-def delete_order(order_id):
-    """Xóa order (chỉ CUSTOMER có thể hủy đơn PENDING)"""
+def add_progress(order_id):
+    """Thêm tiến độ đơn hàng (STAFF)"""
     try:
-        current_user_id = get_jwt_identity()
-        current_user = User.query.get(current_user_id)
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if user.role.role_name != 'STAFF':
+            return jsonify({'error': 'Chỉ nhân viên mới có thể thêm tiến độ'}), 403
+        
+        order = Order.query.get_or_404(order_id)
+        
+        # Kiểm tra staff có được phân công không
+        from backend.models.order import OrderAssignment
+        assignment = OrderAssignment.query.filter_by(
+            order_id=order_id,
+            staff_id=user_id,
+            is_active=True
+        ).first()
+        
+        if not assignment and user.role.role_name != 'ADMIN':
+            return jsonify({'error': 'Bạn không được phân công đơn này'}), 403
+        
+        data = request.get_json()
+        
+        progress = OrderProgress(
+            order_id=order_id,
+            staff_id=user_id,
+            progress_note=data.get('progress_note'),
+            issue_report=data.get('issue_report')
+        )
+        
+        if data.get('image_urls'):
+            progress.set_image_urls(data.get('image_urls'))
+        
+        db.session.add(progress)
+        db.session.commit()
+        
+        return jsonify(progress.to_dict()), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@orders_bp.route('/<int:order_id>/progress', methods=['GET'])
+@jwt_required()
+def get_progress(order_id):
+    """Lấy tiến độ đơn hàng"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
         
         order = Order.query.get_or_404(order_id)
         
         # Kiểm tra quyền
-        can_delete = False
-        if current_user.is_admin():
-            can_delete = True
-        elif current_user.is_customer() and order.customer_id == current_user_id:
-            # CUSTOMER chỉ có thể hủy đơn ở trạng thái PENDING
-            pending_status = OrderStatus.query.filter_by(status_code='PENDING').first()
-            if order.status_id == pending_status.status_id:
-                can_delete = True
+        if user.role.role_name == 'CUSTOMER' and order.customer_id != user_id:
+            return jsonify({'error': 'Không có quyền truy cập'}), 403
         
-        if not can_delete:
-            return jsonify({
-                'message': 'Không thể hủy đơn này',
-                'error': 'cannot_cancel_order'
-            }), 403
+        progress_records = OrderProgress.query.filter_by(order_id=order_id)\
+            .order_by(OrderProgress.created_at.desc()).all()
         
-        # Update status to CANCELLED instead of delete
-        cancelled_status = OrderStatus.query.filter_by(status_code='CANCELLED').first()
-        if cancelled_status:
-            order.status_id = cancelled_status.status_id
-            
-            # Create status history
-            status_history = OrderStatusHistory(
-                order_id=order.order_id,
-                old_status_id=order.status_id,
-                new_status_id=cancelled_status.status_id,
-                changed_by=current_user_id,
-                change_reason='Hủy đơn'
-            )
-            db.session.add(status_history)
-            db.session.commit()
-            
-            # Activity log
-            create_activity_log(current_user_id, 'UPDATE', 'Order', order.order_id, f'Hủy đơn: {order.order_code}')
-            
-            return jsonify({
-                'message': 'Hủy đơn thành công',
-                'order': order.to_dict()
-            }), 200
-        else:
-            return jsonify({
-                'message': 'Không tìm thấy trạng thái CANCELLED',
-                'error': 'status_not_found'
-            }), 500
+        return jsonify([p.to_dict() for p in progress_records]), 200
         
     except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'message': 'Lỗi hủy đơn',
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500

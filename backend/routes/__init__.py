@@ -1,3 +1,1 @@
-"""
-API Routes
-"""
+# Routes package

@@ -1,213 +1,170 @@
-"""
-Authentication Routes
-"""
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-from app import db
-from models.user import User
-from models.role import Role
-from utils.helpers import create_activity_log
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from backend import db
+from backend.models.user import User, Role, MemberLevel
+from werkzeug.security import generate_password_hash
 from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """Đăng ký tài khoản khách hàng"""
+    """
+    Đăng ký tài khoản:
+    - CUSTOMER: mặc định gán MemberLevel = SILVER
+    - STAFF: member_level_id phải NULL (do trigger chỉ cho CUSTOMER)
+    Body: { username, email, password, full_name, phone_number?, address?, register_type: 'CUSTOMER'|'STAFF' }
+    """
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
+        username = (data.get('username') or '').strip()
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password') or ''
+        full_name = (data.get('full_name') or '').strip()
+        phone_number = (data.get('phone_number') or '').strip() or None
+        address = (data.get('address') or '').strip() or None
+        register_type = (data.get('register_type') or 'CUSTOMER').strip().upper()
+
+        if register_type not in ['CUSTOMER', 'STAFF']:
+            return jsonify({'error': 'register_type không hợp lệ (CUSTOMER hoặc STAFF)'}), 400
+
+        if not username or not email or not password or not full_name:
+            return jsonify({'error': 'username, email, password, full_name là bắt buộc'}), 400
+
+        if len(password) < 6:
+            return jsonify({'error': 'Mật khẩu tối thiểu 6 ký tự'}), 400
+
+        # Check unique
+        if User.query.filter_by(username=username).first():
+            return jsonify({'error': 'Username đã tồn tại'}), 409
+        if User.query.filter_by(email=email).first():
+            return jsonify({'error': 'Email đã tồn tại'}), 409
+
+        role = Role.query.filter_by(role_name=register_type).first()
+        if not role:
+            return jsonify({'error': f'Role {register_type} chưa được seed trong DB'}), 500
+
+        member_level_id = None
+        if register_type == 'CUSTOMER':
+            silver = MemberLevel.query.filter_by(level_code='SILVER').first()
+            if not silver:
+                return jsonify({'error': 'MemberLevel SILVER chưa được seed trong DB'}), 500
+            member_level_id = silver.member_level_id
+
+        # Hash password
+        password_hash = generate_password_hash(password)
         
-        # Validation
-        required_fields = ['username', 'email', 'password', 'full_name']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({
-                    'message': f'Thiếu trường {field}',
-                    'error': 'missing_field'
-                }), 400
-        
-        # Check username exists
-        if User.query.filter_by(username=data['username']).first():
-            return jsonify({
-                'message': 'Tên đăng nhập đã tồn tại',
-                'error': 'username_exists'
-            }), 400
-        
-        # Check email exists
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({
-                'message': 'Email đã tồn tại',
-                'error': 'email_exists'
-            }), 400
-        
-        # Get CUSTOMER role
-        customer_role = Role.query.filter_by(role_name='CUSTOMER').first()
-        if not customer_role:
-            return jsonify({
-                'message': 'Role CUSTOMER không tồn tại',
-                'error': 'role_not_found'
-            }), 500
-        
-        # Get SILVER member level (default)
-        from models.member_level import MemberLevel
-        silver_level = MemberLevel.query.filter_by(level_code='SILVER').first()
-        
-        # Create user
-        user = User(
-            username=data['username'],
-            email=data['email'],
-            full_name=data['full_name'],
-            phone_number=data.get('phone_number'),
-            address=data.get('address'),
-            role_id=customer_role.role_id,
-            member_level_id=silver_level.member_level_id if silver_level else None
+        # Dùng raw SQL INSERT để tránh conflict với trigger (OUTPUT clause)
+        # SQL Server không cho phép OUTPUT clause khi có trigger enabled
+        db.session.execute(
+            db.text("""
+                INSERT INTO Users (username, email, password_hash, full_name, phone_number, address, 
+                                 role_id, member_level_id, is_active, is_locked, created_at, updated_at)
+                VALUES (:username, :email, :password_hash, :full_name, :phone_number, :address, 
+                        :role_id, :member_level_id, 1, 0, GETDATE(), GETDATE())
+            """),
+            {
+                'username': username,
+                'email': email,
+                'password_hash': password_hash,
+                'full_name': full_name,
+                'phone_number': phone_number,
+                'address': address,
+                'role_id': role.role_id,
+                'member_level_id': member_level_id
+            }
         )
-        user.set_password(data['password'])
-        
-        db.session.add(user)
         db.session.commit()
         
-        # Create activity log
-        create_activity_log(user.user_id, 'CREATE', 'User', user.user_id, f'Đăng ký tài khoản: {user.username}')
-        
-        return jsonify({
-            'message': 'Đăng ký thành công',
-            'user': user.to_dict()
-        }), 201
-        
+        # Query lại user vừa tạo để lấy thông tin đầy đủ (bao gồm user_id)
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({'error': 'Đăng ký thất bại: Không thể tạo user'}), 500
+
+        return jsonify({'message': 'Đăng ký thành công', 'user': user.to_dict()}), 201
+
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            'message': 'Lỗi đăng ký',
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """Đăng nhập"""
+    """API đăng nhập"""
     try:
         data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
         
-        if not data.get('username') or not data.get('password'):
-            return jsonify({
-                'message': 'Thiếu tên đăng nhập hoặc mật khẩu',
-                'error': 'missing_credentials'
-            }), 400
+        if not email or not password:
+            return jsonify({'error': 'Email và password là bắt buộc'}), 400
         
-        # Find user by username or email
-        user = User.query.filter(
-            (User.username == data['username']) | (User.email == data['username'])
-        ).first()
+        # Tìm user theo email
+        user = User.query.filter_by(email=email).first()
         
-        if not user or not user.check_password(data['password']):
-            return jsonify({
-                'message': 'Tên đăng nhập hoặc mật khẩu không đúng',
-                'error': 'invalid_credentials'
-            }), 401
+        if not user:
+            return jsonify({'error': 'Email hoặc password không đúng'}), 401
         
+        # Kiểm tra password
+        if not user.check_password(password):
+            return jsonify({'error': 'Email hoặc password không đúng'}), 401
+        
+        # Kiểm tra user có active không
         if not user.is_active:
-            return jsonify({
-                'message': 'Tài khoản đã bị khóa',
-                'error': 'account_locked'
-            }), 403
+            return jsonify({'error': 'Tài khoản đã bị khóa'}), 403
         
+        # Kiểm tra user có bị lock không
         if user.is_locked:
-            return jsonify({
-                'message': 'Tài khoản đã bị khóa',
-                'error': 'account_locked'
-            }), 403
+            return jsonify({'error': 'Tài khoản đã bị khóa'}), 403
         
-        # Update last login
+        # Cập nhật last_login
         user.last_login = datetime.utcnow()
         db.session.commit()
         
-        # Create tokens
-        access_token = create_access_token(identity=user.user_id)
-        refresh_token = create_refresh_token(identity=user.user_id)
+        # Tạo JWT token
+        access_token = create_access_token(
+            identity=str(user.user_id),  # Identity buộc phải là string trong phiên bản mới
+            additional_claims={'role': user.role.role_name}
+        )
         
-        # Create activity log
-        create_activity_log(user.user_id, 'LOGIN', 'User', user.user_id, f'Đăng nhập: {user.username}')
+        print(f"Token created for user_id: {user.user_id}, role: {user.role.role_name}")
+        print(f"Token length: {len(access_token)}")
         
         return jsonify({
-            'message': 'Đăng nhập thành công',
             'access_token': access_token,
-            'refresh_token': refresh_token,
+            'role': user.role.role_name,
             'user': user.to_dict()
         }), 200
         
     except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'message': 'Lỗi đăng nhập',
-            'error': str(e)
-        }), 500
-
-@auth_bp.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
-def refresh():
-    """Refresh access token"""
-    try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or not user.is_active:
-            return jsonify({
-                'message': 'Người dùng không tồn tại hoặc đã bị khóa',
-                'error': 'user_not_found'
-            }), 404
-        
-        access_token = create_access_token(identity=user_id)
-        
-        return jsonify({
-            'access_token': access_token
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            'message': 'Lỗi refresh token',
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
     """Lấy thông tin user hiện tại"""
     try:
+        from flask_jwt_extended import get_jwt
+        jwt_data = get_jwt()
+        print(f"JWT Data: {jwt_data}")
+        
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        print(f"User ID from token: {user_id}")
+        
+        # Convert back to int for lookup
+        user = User.query.get(int(user_id))
         
         if not user:
-            return jsonify({
-                'message': 'Người dùng không tồn tại',
-                'error': 'user_not_found'
-            }), 404
+            return jsonify({'error': 'User không tồn tại'}), 404
         
-        return jsonify({
-            'user': user.to_dict()
-        }), 200
+        return jsonify(user.to_dict()), 200
         
     except Exception as e:
-        return jsonify({
-            'message': 'Lỗi lấy thông tin user',
-            'error': str(e)
-        }), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    """Đăng xuất (client sẽ xóa token)"""
-    try:
-        user_id = get_jwt_identity()
-        
-        # Create activity log
-        create_activity_log(user_id, 'LOGOUT', 'User', user_id, 'Đăng xuất')
-        
-        return jsonify({
-            'message': 'Đăng xuất thành công'
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            'message': 'Lỗi đăng xuất',
-            'error': str(e)
-        }), 500
+    """Đăng xuất (Frontend sẽ xóa token khỏi localStorage)"""
+    return jsonify({'message': 'Đăng xuất thành công'}), 200

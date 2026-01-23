@@ -1,112 +1,152 @@
-# Website Dịch Vụ Vệ Sinh Văn Phòng - CleanOffice Pro
+# 🧹 PCLEAR – Office Cleaning Service Platform
 
-Website thương mại dịch vụ vệ sinh văn phòng chuyên nghiệp với giao diện tươi sáng, hiện đại.
+Website thương mại cung cấp dịch vụ vệ sinh văn phòng.
 
-## Cấu Trúc Dự Án
+## 📋 Yêu Cầu Hệ Thống
 
-```
-├── index.html          # Trang chủ
-├── about.html          # Trang giới thiệu
-├── services.html       # Trang dịch vụ
-├── pricing.html        # Trang bảng giá
-├── contact.html        # Trang liên hệ
-├── login.html          # Trang đăng nhập
-├── register.html       # Trang đăng ký
-├── css/
-│   └── style.css      # File CSS chính
-├── js/
-│   └── main.js        # File JavaScript chính
-└── README.md          # File hướng dẫn
+- Python 3.8+
+- SQL Server 2019/2022 hoặc SQL Server Express
+- ODBC Driver 17 for SQL Server
+
+## 🚀 Cài Đặt
+
+### 1. Clone repository
+```bash
+git clone <repository-url>
+cd k22CNT3-TrinhHuuPhuc-2210900054-DATN-3
 ```
 
-## Các Trang Web
+### 2. Tạo virtual environment
+```bash
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
+```
 
-### 1. Trang Chủ (index.html)
-- Hero section với call-to-action
-- Giới thiệu các tính năng nổi bật
-- Preview dịch vụ
-- Thống kê thành tựu
+### 3. Cài đặt dependencies
+```bash
+pip install -r requirements.txt
+```
 
-### 2. Trang Giới Thiệu (about.html)
-- Lịch sử hình thành công ty
-- Tầm nhìn và sứ mệnh
-- Giá trị cốt lõi
-- Thông tin đội ngũ
-- Thành tựu và giải thưởng
-- Cam kết với khách hàng
+### 4. Cấu hình Database
 
-### 3. Trang Dịch Vụ (services.html)
-- Vệ sinh hàng ngày
-- Vệ sinh định kỳ
-- Vệ sinh sau xây dựng
-- Vệ sinh cửa kính
-- Vệ sinh thảm chuyên sâu
-- Vệ sinh nhà vệ sinh
-- Vệ sinh xanh (thân thiện môi trường)
-- Bảo trì & bảo dưỡng
+#### a. Chạy SQL Script
+- Mở SQL Server Management Studio (SSMS)
+- Kết nối đến SQL Server (ví dụ: `MSI\SQLEXPRESS` với Windows Authentication)
+- Chạy script: `Database/k22CNT3-TrinhHuuPhuc-2210900054-DATN.sql`
+- Kiểm tra database `OfficeCleaningService` đã được tạo
 
-### 4. Trang Bảng Giá (pricing.html)
-- Gói Cơ Bản (2.500.000đ/tháng)
-- Gói Tiêu Chuẩn (4.500.000đ/tháng) - Phổ biến
-- Gói Cao Cấp (7.500.000đ/tháng)
-- Gói Doanh Nghiệp (Liên hệ)
-- Dịch vụ bổ sung
-- Chính sách giảm giá
+#### b. Tạo file `.env`
+Copy `env.example` thành `.env` và cập nhật:
 
-### 5. Trang Liên Hệ (contact.html)
-- Form liên hệ đầy đủ
-- Thông tin liên hệ chi tiết
-- Bản đồ (placeholder)
-- Câu hỏi thường gặp (FAQ)
+```env
+# Với SQL Server Express (có instance name)
+SQL_SERVER_SERVER=MSI\SQLEXPRESS
+# hoặc
+SQL_SERVER_SERVER=localhost\SQLEXPRESS
+# hoặc
+SQL_SERVER_SERVER=.\SQLEXPRESS
 
-### 6. Trang Đăng Nhập (login.html)
-- Form đăng nhập
-- Tùy chọn ghi nhớ đăng nhập
-- Quên mật khẩu
-- Đăng nhập bằng mạng xã hội
-- Lợi ích khi đăng nhập
+# Với SQL Server Default Instance (không có instance name)
+# SQL_SERVER_SERVER=localhost
 
-### 7. Trang Đăng Ký (register.html)
-- Form đăng ký đầy đủ
-- Xác nhận mật khẩu
-- Điều khoản sử dụng
-- Đăng ký bằng mạng xã hội
-- Lợi ích khi đăng ký
+SQL_SERVER_DATABASE=OfficeCleaningService
+SQL_SERVER_TRUSTED_CONNECTION=yes
+JWT_SECRET_KEY=your-secret-key-change-in-production-12345
+```
 
-## Tính Năng
+**Lưu ý:** 
+- Nếu SQL Server Express với instance `SQLEXPRESS`, dùng format: `SERVER\SQLEXPRESS`
+- Kiểm tra server name trong SSMS khi kết nối (ví dụ: `MSI\SQLEXPRESS`)
 
-- ✅ Responsive design - Tương thích mọi thiết bị
-- ✅ Navigation menu liên kết tất cả các trang
-- ✅ Form validation với JavaScript
-- ✅ Smooth scrolling
-- ✅ Hover effects và animations
-- ✅ Giao diện tươi sáng, chuyên nghiệp
-- ✅ Nội dung đầy đủ, chi tiết cho từng trang
+### 5. Tạo Admin đầu tiên
+```bash
+python scripts/seed_admin.py
+```
 
-## Cách Sử Dụng
+Script sẽ:
+- Kiểm tra kết nối database
+- Tạo admin với email: `admin@pclear.vn`
+- Bạn sẽ được yêu cầu nhập mật khẩu
 
-1. Mở file `index.html` trong trình duyệt web
-2. Điều hướng giữa các trang thông qua menu
-3. Điền form liên hệ, đăng nhập, đăng ký để test chức năng
+### 6. Chạy Backend
+```bash
+python run.py
+```
 
-## Màu Sắc Chủ Đạo
+Hoặc:
+```bash
+python -m backend.app
+```
 
-- Primary Color: #4CAF50 (Xanh lá)
-- Secondary Color: #2196F3 (Xanh dương)
-- Accent Color: #FFC107 (Vàng)
-- Text Dark: #333
-- Text Light: #666
-- Background Light: #F5F5F5
+Backend sẽ chạy tại: `http://localhost:5000`
 
-## Lưu Ý
+## 📁 Cấu Trúc Project
 
-- Website này là front-end tĩnh, chưa có backend
-- Form submission hiện tại chỉ hiển thị alert (cần tích hợp backend)
-- Bản đồ trong trang liên hệ là placeholder (cần tích hợp Google Maps API)
-- Đăng nhập bằng mạng xã hội cần tích hợp OAuth
+```
+.
+├── backend/              # Backend Flask API
+│   ├── models/          # Database models
+│   ├── routes/          # API routes
+│   ├── config.py        # Configuration
+│   └── app.py           # Application entry point
+├── frontend/            # Frontend HTML/JS/CSS
+├── Database/            # SQL scripts
+├── scripts/             # Utility scripts
+└── requirements.txt     # Python dependencies
+```
 
-## Tác Giả
+## 🔌 API Endpoints
 
-CleanOffice Pro - Dịch vụ vệ sinh văn phòng chuyên nghiệp
+### Authentication
+- `POST /api/auth/login` - Đăng nhập
+- `GET /api/auth/me` - Lấy thông tin user hiện tại
+- `POST /api/auth/logout` - Đăng xuất
 
+### Services
+- `GET /api/services` - Lấy danh sách dịch vụ
+- `GET /api/services/<id>` - Lấy chi tiết dịch vụ
+- `GET /api/services/categories` - Lấy danh mục dịch vụ
 
+### Orders
+- `GET /api/orders` - Lấy danh sách đơn hàng
+- `POST /api/orders` - Tạo đơn hàng mới
+- `GET /api/orders/<id>` - Lấy chi tiết đơn hàng
+- `PUT /api/orders/<id>/status` - Cập nhật trạng thái đơn
+- `POST /api/orders/<id>/progress` - Thêm tiến độ đơn hàng
+- `GET /api/orders/<id>/progress` - Lấy tiến độ đơn hàng
+
+### Content
+- `GET /api/content/<type>` - Lấy nội dung theo type
+
+## 🔐 Default Admin Account
+
+Sau khi chạy `seed_admin.py`:
+- Email: `admin@pclear.vn`
+- Password: (mật khẩu bạn đã nhập khi chạy script)
+
+## 🔧 Troubleshooting
+
+### Lỗi kết nối Database
+1. Kiểm tra SQL Server đang chạy (Services hoặc SQL Server Configuration Manager)
+2. Kiểm tra server name trong SSMS khi kết nối thành công
+3. Cập nhật `SQL_SERVER_SERVER` trong `.env` đúng với server name
+4. Với SQL Server Express: dùng format `SERVER\SQLEXPRESS`
+5. Kiểm tra ODBC Driver 17 đã cài đặt
+
+### Lỗi "Cannot open database"
+- Đảm bảo đã chạy SQL script để tạo database
+- Kiểm tra `SQL_SERVER_DATABASE=OfficeCleaningService` trong `.env`
+
+### Lỗi CORS
+- Kiểm tra `CORS_ORIGINS` trong `.env`
+- Đảm bảo frontend và backend đang chạy trên đúng port
+
+## 📝 Ghi Chú
+
+- Xem chi tiết trong `readme_pclear.md`
+- Hướng dẫn nhanh: `QUICKSTART.md`
+- Backend sử dụng JWT authentication
+- Frontend sẽ được tạo ở bước tiếp theo

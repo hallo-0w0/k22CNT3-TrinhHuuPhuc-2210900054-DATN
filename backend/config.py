@@ -1,124 +1,48 @@
-"""
-Cấu hình cho Flask Application
-"""
 import os
-from datetime import timedelta
+from urllib.parse import quote_plus, quote
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
-    """Cấu hình cơ bản"""
+    """Cấu hình ứng dụng Flask"""
     
-    # Flask
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    # Database Configuration
+    SQL_SERVER_DRIVER = os.getenv('SQL_SERVER_DRIVER', 'ODBC Driver 17 for SQL Server')
+    SQL_SERVER_SERVER = os.getenv('SQL_SERVER_SERVER', 'localhost')
+    SQL_SERVER_DATABASE = os.getenv('SQL_SERVER_DATABASE', 'OfficeCleaningService')
+    SQL_SERVER_TRUSTED_CONNECTION = os.getenv('SQL_SERVER_TRUSTED_CONNECTION', 'yes')
     
-    # SQL Server Database Configuration
-    # Server name (ví dụ: MSI\SQLEXPRESS hoặc localhost\SQLEXPRESS)
-    SQL_SERVER_SERVER = os.environ.get('SQL_SERVER_SERVER') or 'MSI\\SQLEXPRESS'
+    # SQLAlchemy URI
+    # Hỗ trợ SQL Server Express với instance name (ví dụ: MSI\SQLEXPRESS, localhost\SQLEXPRESS)
+    # Với SQLAlchemy + pyodbc, backslash trong server name cần được xử lý đặc biệt
+    # Encode server name, sau đó thay thế encoded backslash (%5C) về lại backslash
+    # vì pyodbc cần backslash thực sự trong connection string
+    server_encoded = quote(SQL_SERVER_SERVER, safe='')
+    server_encoded = server_encoded.replace('%5C', '\\')  # Giữ backslash cho instance name
     
-    # Database name
-    SQL_SERVER_DATABASE = os.environ.get('SQL_SERVER_DATABASE') or 'OfficeCleaningService'
+    SQLALCHEMY_DATABASE_URI = (
+        f"mssql+pyodbc://{server_encoded}/{SQL_SERVER_DATABASE}"
+        f"?driver={quote_plus(SQL_SERVER_DRIVER)}"
+        f"&Trusted_Connection={SQL_SERVER_TRUSTED_CONNECTION}"
+    )
     
-    # ODBC Driver (có thể là: ODBC Driver 17 for SQL Server, ODBC Driver 18 for SQL Server, SQL Server Native Client 11.0)
-    SQL_SERVER_DRIVER = os.environ.get('SQL_SERVER_DRIVER') or 'ODBC Driver 17 for SQL Server'
-    
-    # Authentication Method: 'windows' hoặc 'sql'
-    # Nếu dùng Windows Authentication, set SQL_SERVER_AUTH=windows (không cần UID/PWD)
-    # Nếu dùng SQL Server Authentication, set SQL_SERVER_AUTH=sql và cung cấp UID/PWD
-    SQL_SERVER_AUTH = os.environ.get('SQL_SERVER_AUTH') or 'windows'
-    
-    # SQL Server Authentication (chỉ dùng khi SQL_SERVER_AUTH = 'sql')
-    SQL_SERVER_UID = os.environ.get('SQL_SERVER_UID') or 'sa'
-    SQL_SERVER_PWD = os.environ.get('SQL_SERVER_PWD') or ''
-    
-    # SQLAlchemy Database URI - Tính toán connection string
-    @staticmethod
-    def _build_database_uri():
-        """Tạo connection string động dựa trên phương thức authentication"""
-        from urllib.parse import quote_plus
-        
-        server = os.environ.get('SQL_SERVER_SERVER') or 'MSI\\SQLEXPRESS'
-        database = os.environ.get('SQL_SERVER_DATABASE') or 'OfficeCleaningService'
-        driver = (os.environ.get('SQL_SERVER_DRIVER') or 'ODBC Driver 17 for SQL Server').replace(' ', '+')
-        auth = os.environ.get('SQL_SERVER_AUTH') or 'windows'
-        
-        server_escaped = server.replace('\\', '/')  # Escape backslash cho URL
-        
-        if auth.lower() == 'windows':
-            # Windows Authentication (Trusted Connection)
-            connection_string = (
-                f"mssql+pyodbc://{server_escaped}/{database}"
-                f"?driver={driver}"
-                f"&Trusted_Connection=yes"
-            )
-        else:
-            # SQL Server Authentication
-            uid = os.environ.get('SQL_SERVER_UID') or 'sa'
-            pwd = quote_plus(os.environ.get('SQL_SERVER_PWD') or '')
-            
-            connection_string = (
-                f"mssql+pyodbc://{uid}:{pwd}@{server_escaped}/{database}"
-                f"?driver={driver}"
-                f"&Trusted_Connection=no"
-            )
-        
-        return connection_string
-    
-    # Gán connection string
-    SQLALCHEMY_DATABASE_URI = _build_database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set True để debug SQL queries
+    
+    # Tắt implicit returning (OUTPUT clause) vì có trigger trên bảng Users
+    # SQL Server không cho phép OUTPUT clause khi có trigger enabled
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,  # Kiểm tra connection trước khi sử dụng
-        'pool_recycle': 3600,   # Recycle connections sau 1 giờ
+        'implicit_returning': False
     }
     
-    # JWT
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-change-in-production'
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
-    JWT_TOKEN_LOCATION = ['headers']
-    JWT_HEADER_NAME = 'Authorization'
-    JWT_HEADER_TYPE = 'Bearer'
+    # JWT Configuration
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+    JWT_ACCESS_TOKEN_EXPIRES = False  # Token không hết hạn (hoặc set thời gian)
     
-    # CORS (nếu frontend chạy trên domain khác)
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS') or '*'
+    # CORS Configuration
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*').split(',')
     
-    # Pagination
-    ITEMS_PER_PAGE = 20
-    
-    # Upload
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    UPLOAD_FOLDER = 'uploads'
-    
-    # Member Level Configuration
-    MEMBER_LEVEL_SILVER = 'SILVER'
-    MEMBER_LEVEL_GOLD = 'GOLD'
-    MEMBER_LEVEL_DIAMOND = 'DIAMOND'
-    
-    # Role Configuration
-    ROLE_GUEST = 'GUEST'
-    ROLE_CUSTOMER = 'CUSTOMER'
-    ROLE_STAFF = 'STAFF'
-    ROLE_ADMIN = 'ADMIN'
-
-class DevelopmentConfig(Config):
-    """Cấu hình cho môi trường Development"""
-    DEBUG = True
-    SQLALCHEMY_ECHO = True
-
-class ProductionConfig(Config):
-    """Cấu hình cho môi trường Production"""
-    DEBUG = False
-    SQLALCHEMY_ECHO = False
-
-class TestingConfig(Config):
-    """Cấu hình cho môi trường Testing"""
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-
-# Dictionary mapping config names to classes
-config = {
-    'development': DevelopmentConfig,
-    'production': ProductionConfig,
-    'testing': TestingConfig,
-    'default': DevelopmentConfig
-}
+    # Application Configuration
+    SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
+    DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
