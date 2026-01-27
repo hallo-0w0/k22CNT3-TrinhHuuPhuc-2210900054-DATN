@@ -68,7 +68,7 @@ function displayOrderDetail() {
             </div>
             <div class="col-md-6 mb-3">
                 <strong>Số lượng:</strong><br>
-                ${currentOrder.quantity} ${currentOrder.service?.unit || ''}
+                ${currentOrder.quantity}
             </div>
             ${currentOrder.notes ? `
                 <div class="col-12 mb-3">
@@ -123,16 +123,31 @@ function displayOrderDetail() {
             ${service?.service_description ? `
                 <div class="col-12 mb-3">
                     <strong>Mô tả:</strong><br>
-                    ${service.service_description}
+                    <span class="text-muted small">${service.service_description}</span>
                 </div>
             ` : ''}
-            <div class="col-md-6 mb-3">
-                <strong>Giá cơ bản:</strong><br>
-                ${formatCurrency(currentOrder.unit_price)}
-            </div>
-            <div class="col-md-6 mb-3">
-                <strong>Thời lượng:</strong><br>
-                ${service?.duration_hours ? service.duration_hours + ' giờ' : '—'}
+            
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Đơn vị</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${formatCurrency(currentOrder.unit_price)}</td>
+                                <td>${currentOrder.quantity}</td>
+                                <td>${service?.unit || 'lần'}</td>
+                                <td class="text-end fw-bold">${formatCurrency(currentOrder.unit_price * currentOrder.quantity)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     `;
@@ -155,21 +170,41 @@ function displayOrderDetail() {
     document.getElementById('statusCard').innerHTML = statusCard;
 
     // Payment Summary
+    const paymentStatus = (currentOrder.status.status_code === 'COMPLETED')
+        ? '<span class="badge bg-success">Đã thanh toán</span>'
+        : '<span class="badge bg-light text-dark border">Chưa thanh toán</span>';
+
     const paymentSummary = `
         <div class="mb-3">
             <div class="d-flex justify-content-between mb-2">
-                <span>Giá gốc:</span>
-                <strong>${formatCurrency(currentOrder.unit_price * currentOrder.quantity)}</strong>
+                <div>
+                    <span class="text-muted">Tạm tính</span>
+                    <div class="small text-muted" style="font-size: 0.8em">
+                        ${currentOrder.quantity} x ${formatCurrency(currentOrder.unit_price)}
+                    </div>
+                </div>
+                <span>${formatCurrency(currentOrder.unit_price * currentOrder.quantity)}</span>
             </div>
             ${currentOrder.discount_percentage > 0 ? `
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Giảm giá (${currentOrder.discount_percentage}%):</span>
-                    <strong class="text-success">-${formatCurrency(currentOrder.discount_amount)}</strong>
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <div>
+                         <span>Giảm giá thành viên</span>
+                         <span class="badge bg-success bg-opacity-10 text-success ms-1">-${currentOrder.discount_percentage}%</span>
+                    </div>
+                    <span>-${formatCurrency(currentOrder.discount_amount)}</span>
                 </div>
             ` : ''}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Phương thức</span>
+                <span class="small text-end">Thanh toán sau khi<br>hoàn thành</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Trạng thái</span>
+                <div>${paymentStatus}</div>
+            </div>
             <hr>
             <div class="d-flex justify-content-between">
-                <span class="fs-5"><strong>Tổng tiền:</strong></span>
+                <span class="fs-5"><strong>Tổng cộng</strong></span>
                 <span class="fs-5"><strong class="text-primary">${formatCurrency(currentOrder.total_amount)}</strong></span>
             </div>
         </div>

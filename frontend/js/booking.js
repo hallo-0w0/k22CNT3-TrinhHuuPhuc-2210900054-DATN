@@ -28,6 +28,7 @@ const BookingManager = {
                         <div id="bookingAlertContainer"></div>
                         <form id="bookingForm">
                             <input type="hidden" id="bookingServiceId">
+                            <input type="hidden" id="bookingBasePrice"> <!-- Hidden field to store base price -->
                             
                             <!-- Step 1: Service Info (Read Only) -->
                             <div class="mb-4 p-3 bg-light rounded-3 border">
@@ -73,6 +74,19 @@ const BookingManager = {
                                         <option value="17:00">17:00 - Chiều</option>
                                     </select>
                                 </div>
+                                <!-- New: Quantity Input -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold" id="labelQuantity">Số lượng <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="bookingQuantity" value="1" min="1" required>
+                                        <span class="input-group-text" id="bookingUnitDisplay">lần</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <!-- Spacer or specific calculations info? -->
+                                    <div class="form-text mt-4 text-muted">Hệ thống sẽ tự động tính tổng tiền dựa trên số lượng bạn nhập.</div>
+                                </div>
+
                                 <div class="col-md-12">
                                      <label class="form-label fw-semibold">Ghi chú thêm</label>
                                      <textarea class="form-control" id="bookingNote" rows="2" placeholder="VD: Nhà có trẻ nhỏ, cần mang dụng cụ lau kính..."></textarea>
@@ -130,6 +144,11 @@ const BookingManager = {
         tomorrow.setDate(tomorrow.getDate() + 1);
         document.getElementById('bookingDate').valueAsDate = tomorrow;
         document.getElementById('bookingDate').min = new Date().toISOString().split("T")[0];
+
+        // Event listener for quantity change
+        document.getElementById('bookingQuantity').addEventListener('input', () => {
+            this.calculateTotal();
+        });
     },
 
     openModal: async function (serviceId) {
@@ -149,10 +168,22 @@ const BookingManager = {
             document.getElementById('bookingServiceName').textContent = service.service_name;
             document.getElementById('bookingServiceDesc').textContent = service.service_description;
             document.getElementById('bookingServicePrice').textContent = this.formatCurrency(service.base_price);
-            document.getElementById('bookingServiceUnit').textContent = service.unit ? `/ ${service.unit}` : '';
-            document.getElementById('bookingTotal').textContent = this.formatCurrency(service.base_price);
+
+            // Unit handling
+            const unit = service.unit || 'lần';
+            document.getElementById('bookingServiceUnit').textContent = `/ ${unit}`;
+            document.getElementById('bookingUnitDisplay').textContent = unit;
+            document.getElementById('labelQuantity').textContent = `Số lượng (${unit}) *`;
+
+            // Reset and store base price
+            document.getElementById('bookingBasePrice').value = service.base_price;
+            document.getElementById('bookingQuantity').value = 1;
+
             document.getElementById('bookingServiceImg').src = `images/services/${service.service_id}.jpg`;
             document.getElementById('bookingServiceImg').onerror = function () { this.src = 'images/services/1.jpg'; };
+
+            // Initial calculate
+            this.calculateTotal();
 
             // Pre-fill user address if available (Assuming we might store it or fetch it)
             // const user = await API.getCurrentUser();
@@ -167,16 +198,32 @@ const BookingManager = {
         }
     },
 
+    calculateTotal: function () {
+        const basePrice = parseFloat(document.getElementById('bookingBasePrice').value) || 0;
+        const quantity = parseFloat(document.getElementById('bookingQuantity').value) || 0;
+
+        let total = basePrice * quantity;
+        if (total < 0) total = 0;
+
+        document.getElementById('bookingTotal').textContent = this.formatCurrency(total);
+    },
+
     submitBooking: async function () {
         const serviceId = document.getElementById('bookingServiceId').value;
         const address = document.getElementById('bookingAddress').value;
         const date = document.getElementById('bookingDate').value;
         const time = document.getElementById('bookingTime').value;
         const note = document.getElementById('bookingNote').value;
+        const quantity = document.getElementById('bookingQuantity').value;
 
         // Validation
-        if (!address || !date || !time) {
+        if (!address || !date || !time || !quantity) {
             this.showAlert('Vui lòng điền đầy đủ các trường bắt buộc (*)', 'danger');
+            return;
+        }
+
+        if (quantity <= 0) {
+            this.showAlert('Số lượng phải lớn hơn 0', 'danger');
             return;
         }
 
@@ -188,7 +235,7 @@ const BookingManager = {
         try {
             const orderData = {
                 service_id: serviceId,
-                quantity: 1, // Default quantity
+                quantity: parseFloat(quantity),
                 service_address: address,
                 scheduled_date: date,
                 scheduled_time: time,

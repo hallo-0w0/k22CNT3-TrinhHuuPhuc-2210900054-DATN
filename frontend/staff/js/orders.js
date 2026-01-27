@@ -161,12 +161,12 @@ function viewOrder(orderId) {
             const html = `
             <div class="mb-4">
                 <h6 class="fw-semibold mb-3">Thông tin đơn hàng</h6>
-                <div class="row g-2">
-                    <div class="col-6">
+                <div class="row g-3">
+                    <div class="col-md-6">
                         <div class="text-muted small">Mã đơn</div>
-                        <div class="fw-semibold">${order.order_code}</div>
+                        <div class="fw-semibold text-break">${order.order_code}</div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div class="text-muted small">Trạng thái</div>
                         <div>
                             <span class="badge bg-${getStatusBadgeColor(order.status.status_code)}">
@@ -174,34 +174,75 @@ function viewOrder(orderId) {
                             </span>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div class="text-muted small">Khách hàng</div>
                         <div>${order.customer ? order.customer.full_name : 'N/A'}</div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div class="text-muted small">Số điện thoại</div>
                         <div>${order.customer?.phone_number || 'N/A'}</div>
                     </div>
                     <div class="col-12">
-                        <div class="text-muted small">Dịch vụ</div>
-                        <div>${order.service ? order.service.service_name : 'N/A'}</div>
+                        <div class="text-muted small">Địa chỉ</div>
+                        <div class="text-break">${order.service_address}</div>
                     </div>
                     <div class="col-12">
-                        <div class="text-muted small">Địa chỉ</div>
-                        <div>${order.service_address}</div>
-                    </div>
-                    <div class="col-6">
                         <div class="text-muted small">Ngày hẹn</div>
                         <div>${formatDate(order.scheduled_date)} ${order.scheduled_time || ''}</div>
                     </div>
-                    <div class="col-6">
-                        <div class="text-muted small">Tổng tiền</div>
-                        <div class="text-primary fw-semibold">${formatCurrency(order.total_amount)}</div>
+                    
+                    <!-- Service Details Table -->
+                    <div class="col-12">
+                        <div class="card bg-light border-0">
+                            <div class="card-body p-3">
+                                <h6 class="card-title fw-bold mb-2">${order.service ? order.service.service_name : 'N/A'}</h6>
+                                <div class="table-responsive bg-white rounded border">
+                                    <table class="table table-sm mb-0 small">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Đơn giá</th>
+                                                <th class="text-center">SL</th>
+                                                <th>Đơn vị</th>
+                                                <th class="text-end">Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>${formatCurrency(order.unit_price)}</td>
+                                                <td class="text-center fw-bold">${order.quantity}</td>
+                                                <td>${order.service?.unit || 'lần'}</td>
+                                                <td class="text-end fw-bold">${formatCurrency(order.unit_price * order.quantity)}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Payment Summary -->
+                    <div class="col-12">
+                         <div class="d-flex justify-content-between mb-1 small">
+                            <span>Tạm tính:</span>
+                            <span>${formatCurrency(order.unit_price * order.quantity)}</span>
+                        </div>
+                         ${order.discount_percentage > 0 ? `
+                            <div class="d-flex justify-content-between mb-1 small text-success">
+                                <span>Giảm giá (${order.discount_percentage}%):</span>
+                                <span>-${formatCurrency(order.discount_amount)}</span>
+                            </div>
+                        ` : ''}
+                        <div class="border-top my-2"></div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Tổng cộng:</span>
+                            <span class="text-primary fw-bold fs-5">${formatCurrency(order.total_amount)}</span>
+                        </div>
+                    </div>
+
                     ${order.notes ? `
                         <div class="col-12">
                             <div class="text-muted small">Ghi chú</div>
-                            <div>${order.notes}</div>
+                            <div class="p-2 bg-light rounded small text-break">${order.notes}</div>
                         </div>
                     ` : ''}
                 </div>

@@ -22,7 +22,10 @@ function displayServices(services) {
         return;
     }
 
-    servicesList.innerHTML = services.map(service => `
+    // Chỉ hiển thị 3 dịch vụ nổi bật
+    const featuredServices = services.slice(0, 3);
+
+    servicesList.innerHTML = featuredServices.map(service => `
         <div class="col-md-4 mb-4">
             <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                 <div class="position-relative overflow-hidden" style="height: 200px;">

@@ -106,11 +106,24 @@ function displayOrderDetail() {
         <div class="d-flex align-items-start gap-3">
              <img src="../images/services/${service?.service_id || 1}.jpg" class="rounded object-fit-cover" width="80" height="80"
                   onerror="this.src='../images/services/1.jpg'">
-             <div>
+             <div class="flex-grow-1">
                 <h6 class="mb-1 fw-bold">${service?.service_name || 'Dịch vụ'}</h6>
-                <p class="text-muted small mb-1 line-clamp-2">${service?.service_description || ''}</p>
-                <div class="small">
-                    <span>${formatCurrency(currentOrder.unit_price)}</span> x ${currentOrder.quantity} ${service?.unit || ''}
+                <p class="text-muted small mb-2 line-clamp-2">${service?.service_description || ''}</p>
+                
+                <div class="bg-light p-2 rounded small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Đơn giá:</span>
+                        <span class="fw-medium">${formatCurrency(currentOrder.unit_price)} / ${service?.unit || 'lần'}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Số lượng:</span>
+                        <span class="fw-bold">${currentOrder.quantity}</span>
+                    </div>
+                    <div class="border-top my-1"></div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Thành tiền:</span>
+                        <span class="fw-bold text-primary">${formatCurrency(currentOrder.unit_price * currentOrder.quantity)}</span>
+                    </div>
                 </div>
              </div>
         </div>
@@ -143,17 +156,37 @@ function displayOrderDetail() {
     document.getElementById('statusCard').innerHTML = statusHTML;
 
     // Payment Summary
+    const paymentStatus = (currentOrder.status.status_code === 'COMPLETED')
+        ? '<span class="badge bg-success">Đã thanh toán</span>'
+        : '<span class="badge bg-light text-dark border">Chưa thanh toán</span>';
+
     const paymentHTML = `
          <div class="mb-2 d-flex justify-content-between">
-            <span class="text-muted">Tạm tính</span>
+            <div>
+                <span class="text-muted">Tạm tính</span>
+                <div class="small text-muted" style="font-size: 0.8em">
+                    ${currentOrder.quantity} x ${formatCurrency(currentOrder.unit_price)}
+                </div>
+            </div>
             <span>${formatCurrency(currentOrder.unit_price * currentOrder.quantity)}</span>
         </div>
          ${currentOrder.discount_percentage > 0 ? `
              <div class="mb-2 d-flex justify-content-between text-success">
-                <span>Giảm giá thành viên <small class="text-muted">(lúc đặt)</small></span>
+                <div>
+                     <span>Giảm giá thành viên</span>
+                     <span class="badge bg-success bg-opacity-10 text-success ms-1">-${currentOrder.discount_percentage}%</span>
+                </div>
                 <span>-${formatCurrency(currentOrder.discount_amount)}</span>
             </div>
         ` : ''}
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <span class="text-muted">Phương thức</span>
+            <span class="small text-end">Thanh toán sau khi<br>hoàn thành</span>
+        </div>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <span class="text-muted">Trạng thái</span>
+            <div>${paymentStatus}</div>
+        </div>
         <hr class="my-2">
         <div class="d-flex justify-content-between align-items-center">
             <span class="fw-bold">Tổng cộng</span>

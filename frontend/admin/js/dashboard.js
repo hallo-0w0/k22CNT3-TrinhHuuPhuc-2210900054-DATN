@@ -572,7 +572,7 @@ function displayServices(services) {
                         <tr>
                             <td><strong>${escapeHtml(service.service_name || 'N/A')}</strong></td>
                             <td>${escapeHtml(categoryName)}</td>
-                            <td>${formatCurrency(service.base_price || 0)}</td>
+                            <td>${formatCurrency(service.base_price || 0)} / ${service.unit || 'lần'}</td>
                             <td>${service.duration_hours ? service.duration_hours + 'h' : 'N/A'}</td>
                             <td>
                                 <span class="badge bg-${isActive ? 'success' : 'secondary'}">
